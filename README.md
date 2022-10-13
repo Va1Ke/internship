@@ -1,5 +1,5 @@
 # internship
 Vladyslav Kachur Internship
 
-to build docker image 'docker build -t getting-started .'
-to run docker container 'docker run -dp 80:80 getting-started '
+to build docker-compose image 'docker-compose build'
+to run fastapi, postgres, redis docker containers 'docker-compose up -d'
