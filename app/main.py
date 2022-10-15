@@ -5,8 +5,11 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import asyncio
 import aioredis
-from config import *
-db=databases.Database(POSTGRES_URL)
+from app.config import settings
+
+print(settings.DATABASE_URL)
+
+db = databases.Database(settings.DATABASE_URL)
 
 app = FastAPI()
 
@@ -27,17 +30,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-conn = psycopg2.connect(dbname=POSTGRES_DB, user=POSTGRES_USER, password=POSTGRES_PASSWORD)
-
 @app.on_event("startup")
 async def startup():
     await db.connect()
-    app.state.redis = await aioredis.from_url(REDIS_URL)
+    #app.state.redis = await aioredis.from_url(REDIS_URL)
 
 @app.on_event("shutdown")
 async def shutdown():
     await db.disconnect()
-    await app.state.redis.close()
+    #await app.state.redis.close()
 
 @app.get("/")
 async def root():
