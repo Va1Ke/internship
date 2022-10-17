@@ -7,7 +7,7 @@ import asyncio
 import aioredis
 from app.config import settings
 
-print(settings.DATABASE_URL)
+#print(settings.DATABASE_URL)
 
 db = databases.Database(settings.DATABASE_URL)
 
