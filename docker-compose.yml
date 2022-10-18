@@ -6,10 +6,10 @@ services:
     image: postgres
     ports:
       - "5432:5432"
-    env_file:
-      - .env
     volumes:
       - /var/lib/postgresql/data
+    env_file:
+      - .env
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -36,6 +36,14 @@ services:
       - db
       - cache
 
+  pgweb:
+    image: sosedoff/pgweb
+    ports:
+      - "8081:8081"
+    environment:
+      - DATABASE_URL=postgresql://admin:admin@db:5432/postgresdb?sslmode=disable
+    depends_on:
+      - db
 
 volumes:
   db_volume:
