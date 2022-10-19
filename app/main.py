@@ -62,6 +62,14 @@ def create_user(user: schemas.SignUpUser, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
     return crud.create_user(db=db, user=user)
 
+@app.post("/update-user/")
+def create_user(user: schemas.UserUpdate, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_email(db, email=user.email)
+    if db_user:
+        return crud.update_user(db=db,user=user)
+    else:
+        return HTTPException(status_code=400, detail="No such user")
+
 
 @app.get("/users/", response_model=list[schemas.User])
 def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -69,7 +77,7 @@ def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return users
 
 @app.delete("/users/")
-def delete_user(user: schemas.UserUpdate, db: Session = Depends(get_db)):
+def delete_user(user: schemas.UserDelete, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
         crud.delete_user(db=db, user=user)

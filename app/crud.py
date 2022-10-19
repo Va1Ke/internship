@@ -28,12 +28,12 @@ def delete_user(db: Session, user: schemas.UserUpdate):
     db.commit()
     return HTTPException(status_code=200, detail="User deleted successfully")
 
-def put_user(db: Session, user: schemas.UserUpdate):
-    #fake_hashed_password = user.password + "notreallyhashed"
-    Object = db.query(models.User).filter(models.User.email == user.email).first()
-    db.delete(Object)
+def update_user(db: Session, user: schemas.UserUpdate):
+    usernew = get_user_by_email(db, user.email)
+    usernew.name = user.name
+    db.refresh(usernew)
     db.commit()
-    return HTTPException(status_code=200, detail="User deleted successfully")
+    return HTTPException(status_code=200, detail="User updated successfully")
 
 
 

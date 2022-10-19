@@ -11,8 +11,7 @@ class User(Base):
     email = Column(String, unique=True)
     creation_date = Column(DateTime)
 
-    def __init__(self,id,name,password,email,creation_date):
-        self.id = id
+    def __init__(self,name,password,email,creation_date):
         self.name = name
         self.password = password
         self.email = email

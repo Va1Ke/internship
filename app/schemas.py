@@ -12,9 +12,12 @@ class SignUpUser(UserBase):
     name: str
     password: str
 
-class UserUpdate(UserBase):
+class UserDelete(UserBase):
     password: str
 
+class UserUpdate(UserBase):
+    name: str
+    password: str
 
 class User(UserBase):
     id: int
