@@ -8,7 +8,6 @@ class UserBase(BaseModel):
 class SignInUser(UserBase):
     password: str
 
-
 class SignUpUser(UserBase):
     email: str
     name: str
@@ -18,16 +17,17 @@ class UserUpdate(UserBase):
     name: str
     password: str
 
+class User(UserBase):
+    id: int
+    name: str
+    password: str
+    creation_date: datetime.datetime
+
+    class Config:
+        orm_mode = True
+
 class UserList(UserBase):
     id: int
     name: str
     password: str
-
-class User(UserBase):
-    id: int
-    name: str
-    email: str
-    password: str
-    creation_date: datetime.datetime
-    class Config:
-        orm_mode = True
+    users: list[User]

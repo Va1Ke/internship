@@ -6,7 +6,7 @@ import uvicorn
 import asyncio
 import aioredis
 from app.config import settings
-from app.database import Base, engine, init_db
+from app.database import Base, engine
 from app.schemas import User
 
 
@@ -35,7 +35,6 @@ app.add_middleware(
 async def startup():
     print(settings.DATABASE_URL)
     await db.connect()
-    #init_db()
     #app.state.redis = await aioredis.from_url(REDIS_URL)
 
 @app.on_event("shutdown")
@@ -45,7 +44,6 @@ async def shutdown():
 
 @app.get("/")
 async def root():
-    #Base.metadata.create_all(engine)
     return {"status": "Working"}
 
 if __name__ == "__main__":
