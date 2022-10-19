@@ -7,7 +7,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - db_volume:/var/lib/postgresql/data
+      - /var/lib/postgresql/data
+    env_file:
+      - .env
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -28,9 +30,20 @@ services:
       - .:/app
     ports:
       - 80:80
+    env_file:
+      - .env
     depends_on:
       - db
       - cache
+
+  pgweb:
+    image: sosedoff/pgweb
+    ports:
+      - "8081:8081"
+    environment:
+      - DATABASE_URL=postgresql://admin:admin@db:5432/postgresdb?sslmode=disable
+    depends_on:
+      - db
 
 volumes:
   db_volume:

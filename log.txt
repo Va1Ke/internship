@@ -1,0 +1,36 @@
+Traceback (most recent call last):
+  File "C:\Users\Vlad\AppData\Local\Programs\Python\Python310\lib\runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\Vlad\AppData\Local\Programs\Python\Python310\lib\runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\Vlad\PycharmProjects\internship-BE-4\venv\Scripts\alembic.exe\__main__.py", line 7, in <module>
+  File "c:\users\vlad\pycharmprojects\internship-be-4\venv\lib\site-packages\alembic\config.py", line 590, in main
+    CommandLine(prog=prog).main(argv=argv)
+  File "c:\users\vlad\pycharmprojects\internship-be-4\venv\lib\site-packages\alembic\config.py", line 584, in main
+    self.run_cmd(cfg, options)
+  File "c:\users\vlad\pycharmprojects\internship-be-4\venv\lib\site-packages\alembic\config.py", line 561, in run_cmd
+    fn(
+  File "c:\users\vlad\pycharmprojects\internship-be-4\venv\lib\site-packages\alembic\command.py", line 229, in revision
+    script_directory.run_env()
+  File "c:\users\vlad\pycharmprojects\internship-be-4\venv\lib\site-packages\alembic\script\base.py", line 569, in run_env
+    util.load_python_file(self.dir, "env.py")
+  File "c:\users\vlad\pycharmprojects\internship-be-4\venv\lib\site-packages\alembic\util\pyfiles.py", line 94, in load_python_file
+    module = load_module_py(module_id, path)
+  File "c:\users\vlad\pycharmprojects\internship-be-4\venv\lib\site-packages\alembic\util\pyfiles.py", line 110, in load_module_py
+    spec.loader.exec_module(module)  # type: ignore
+  File "<frozen importlib._bootstrap_external>", line 883, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "C:\Users\Vlad\PycharmProjects\internship-BE-4\internship\alembic\env.py", line 6, in <module>
+    from app.database import Base, SQLALCHEMY_DATABASE_URL
+  File "C:\Users\Vlad\PycharmProjects\internship-BE-4\internship\.\app\database.py", line 9, in <module>
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+  File "<string>", line 2, in create_engine
+  File "c:\users\vlad\pycharmprojects\internship-be-4\venv\lib\site-packages\sqlalchemy\util\deprecations.py", line 309, in warned
+    return fn(*args, **kwargs)
+  File "c:\users\vlad\pycharmprojects\internship-be-4\venv\lib\site-packages\sqlalchemy\engine\create.py", line 518, in create_engine
+    u = _url.make_url(url)
+  File "c:\users\vlad\pycharmprojects\internship-be-4\venv\lib\site-packages\sqlalchemy\engine\url.py", line 725, in make_url
+    return _parse_rfc1738_args(name_or_url)
+  File "c:\users\vlad\pycharmprojects\internship-be-4\venv\lib\site-packages\sqlalchemy\engine\url.py", line 781, in _parse_rfc1738_args
+    components["port"] = int(components["port"])
+ValueError: invalid literal for int() with base 10: 'None'

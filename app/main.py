@@ -6,8 +6,9 @@ import uvicorn
 import asyncio
 import aioredis
 from app.config import settings
+from app.database import Base, engine
+from app.schemas import User
 
-print(settings.DATABASE_URL)
 
 db = databases.Database(settings.DATABASE_URL)
 
@@ -32,6 +33,7 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup():
+    print(settings.DATABASE_URL)
     await db.connect()
     #app.state.redis = await aioredis.from_url(REDIS_URL)
 
