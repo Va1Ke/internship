@@ -1,7 +1,7 @@
 from sqlalchemy import Column,String,Integer,DateTime
 from app.database import Base
 from sqlalchemy.orm import relationship
-
+from datetime import datetime
 
 class User(Base):
     __tablename__ = "users"
@@ -10,4 +10,11 @@ class User(Base):
     password = Column(String)
     email = Column(String, unique=True)
     creation_date = Column(DateTime)
+
+    def __init__(self,id,name,password,email,creation_date):
+        self.id = id
+        self.name = name
+        self.password = password
+        self.email = email
+        self.creation_date = creation_date
 
