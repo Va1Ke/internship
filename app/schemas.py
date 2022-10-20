@@ -9,8 +9,10 @@ class SignInUser(UserBase):
     password: str
 
 class SignUpUser(UserBase):
-    email: str
     name: str
+    password: str
+
+class UserDelete(UserBase):
     password: str
 
 class UserUpdate(UserBase):
@@ -21,7 +23,6 @@ class User(UserBase):
     id: int
     name: str
     password: str
-    creation_date: datetime.datetime
 
     class Config:
         orm_mode = True
@@ -29,5 +30,5 @@ class User(UserBase):
 class UserList(UserBase):
     id: int
     name: str
-    password: str
     users: list[User]
+    creation_date: datetime.datetime
