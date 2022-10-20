@@ -29,10 +29,12 @@ def delete_user(db: Session, user: schemas.UserUpdate):
     return HTTPException(status_code=200, detail="User deleted successfully")
 
 def update_user(db: Session, user: schemas.UserUpdate):
-    usernew = get_user_by_email(db, user.email)
+    usernew = get_user(db, user.id)
     usernew.name = user.name
-    db.refresh(usernew)
+    usernew.password = user.password
+    usernew.email = user.email
     db.commit()
+    db.refresh(usernew)
     return HTTPException(status_code=200, detail="User updated successfully")
 
 

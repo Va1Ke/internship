@@ -22,7 +22,7 @@ class UserUpdate(UserBase):
 class User(UserBase):
     id: int
     name: str
-    creation_date: datetime.datetime
+    password: str
 
     class Config:
         orm_mode = True

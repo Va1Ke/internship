@@ -63,8 +63,8 @@ def create_user(user: schemas.SignUpUser, db: Session = Depends(get_db)):
     return crud.create_user(db=db, user=user)
 
 @app.post("/update-user/")
-def create_user(user: schemas.UserUpdate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
+def create_user(user: schemas.User, db: Session = Depends(get_db)):
+    db_user = crud.get_user(db, user_id=user.id)
     if db_user:
         return crud.update_user(db=db,user=user)
     else:
