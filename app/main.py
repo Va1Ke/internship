@@ -11,12 +11,16 @@ from sqlalchemy.orm import Session
 from app import crud, models, schemas
 from app.database import SessionLocal
 from app.routes import router
+from fastapi import Depends, FastAPI
+from fastapi.security import HTTPBearer
+from app.utils import VerifyToken
 
+token_auth_scheme = HTTPBearer()
 
 db = databases.Database(settings.DATABASE_URL)
 
 app = FastAPI()
-
+Crud = crud.Cruds()
 
 origins = [
     "http://localhost.tiangolo.com",
@@ -54,41 +58,43 @@ async def get_db():
     try:
         yield db
     finally:
-        await db.close()
+        db.close()
 
 @app.post("/users/", response_model=schemas.User)
 def create_user(user: schemas.SignUpUser, db: Session = Depends(get_db)):
-    db_user = crud.Cruds.get_user_by_email(db, email=user.email)
+    #print(f"({user.email})")
+    db_user = Crud.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.Cruds.create_user(db=db, user=user)
+    return Crud.create_user(db=db, user=user)
 
-@app.post("/update-user/")
-def create_user(user: schemas.User, db: Session = Depends(get_db)):
-    db_user = crud.Cruds.get_user(db, user_id=user.id)
+@app.put("/update-user/")
+def create_user(user: schemas.User, db: Session = Depends(get_db),token: str= Depends(token_auth_scheme)):
+    result = VerifyToken(token.credentials).verify()
+    db_user = Crud.get_user(db, user_id=user.id)
     if db_user:
-        return crud.Cruds.update_user(db=db,user=user)
+        return Crud.update_user(db=db,user=user)
     else:
         return HTTPException(status_code=400, detail="No such user")
 
 
 @app.get("/users/", response_model=list[schemas.User])
 def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = crud.Cruds.get_users(db, skip=skip, limit=limit)
+    users = Crud.get_users(db, skip=skip, limit=limit)
     return users
 
 @app.delete("/users/")
 def delete_user(user: schemas.UserDelete, db: Session = Depends(get_db)):
-    db_user = crud.Cruds.get_user_by_email(db, email=user.email)
+    db_user = Crud.get_user_by_email(db, email=str(user.email))
     if db_user:
-        crud.Cruds.delete_user(db=db, user=user)
+        Crud.delete_user(db=db, user=user)
         return HTTPException(status_code=200, detail="User deleted successfully")
     else:
         return HTTPException(status_code=400, detail="No such user")
 
 @app.get("/users/{user_id}", response_model=schemas.User)
 def read_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = crud.Cruds.get_user(db, user_id=user_id)
+    db_user = Crud.get_user(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
