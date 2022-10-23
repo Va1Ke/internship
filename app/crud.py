@@ -1,42 +1,42 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from datetime import datetime
-from app import models, schemas
+from app import schemas
+from app.models import users
+from app.database import db
 
 class Cruds:
-    def get_user(self,db: Session, user_id: int):
-        return db.query(models.User).filter(models.User.id == user_id).first()
+    async def get_user_by_id(id: int):
+        return await db.fetch_one(users.select().where(users.c.id == id))
 
-    def get_users(self,db: Session, skip: int = 0, limit: int = 100):
-        return db.query(models.User).offset(skip).limit(limit).all()
+    async def get_users(skip: int = 0, limit: int = 100):
+        query = users.select().offset(skip).limit(limit)
+        return await db.fetch_all(query=query)
 
-    def get_user_by_email(self,db: Session, email: str):
-        return db.query(models.User).filter(models.User.email == email).first()
+    async def get_user_by_email(email: str):
+        return await db.fetch_one(users.select().where(users.c.email == email))
 
-    def create_user(self,db: Session, user: schemas.SignUpUser):
+    async def create_user(user: schemas.SignUpUser):
         #fake_hashed_password = user.password + "notreallyhashed"
         #print(f"({user.email})")
-        db_user = models.User(email=user.email, password=user.password,name=user.name, creation_date=datetime.now())
-        db.add(db_user)
-        db.commit()
-        db.refresh(db_user)
-        return db_user
+        creation_time = datetime.now()
+        db_user = users.insert().values(email=user.email, password=user.password,name=user.name, creation_date=creation_time)
+        user_id= await db.execute(db_user)
+        print(user_id)
+        print(type(user_id))
+        return schemas.User(**user.dict(),id=user_id,creation_date=creation_time)
 
-    def delete_user(self,db: Session, user: schemas.UserUpdate):
-        #fake_hashed_password = user.password + "notreallyhashed"
-        Object = db.query(models.User).filter(models.User.email == user.email).first()
-        db.delete(Object)
-        db.commit()
-        return HTTPException(status_code=200, detail="User deleted successfully")
+    async def delete_user( user: schemas.UserDelete):
+        query = users.delete().where(email == user.c.email)
+        return await db.execute(query=query)
 
-    def update_user(self,db: Session, user: schemas.UserUpdate):
-        usernew = self.get_user(db, user.id)
-        usernew.name = user.name
-        usernew.password = user.password
-        usernew.email = user.email
-        db.commit()
-        db.refresh(usernew)
-        return user
+    async def update_user(id_: int, email_: str, name_: str, password_: str):
+        query = (users.update().where(id == id_).values(
+        email=email_,
+        name=name_,
+        password=password_
+        ).returning(users.c.id))
+        return await db.execute(query=query)
 
     class VerifyToken():
         """Does all the token verification using PyJWT"""

@@ -16,6 +16,7 @@ class UserDelete(UserBase):
     password: str
 
 class UserUpdate(UserBase):
+    id: int
     name: str
     password: str
 
@@ -23,9 +24,7 @@ class User(UserBase):
     id: int
     name: str
     password: str
-
-    class Config:
-        orm_mode = True
+    creation_date: datetime.datetime
 
 class UserList(UserBase):
     id: int
