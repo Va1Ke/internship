@@ -8,7 +8,9 @@ from app.database import db
 class Cruds:
     async def get_user_by_id(self,id: int):
         user = await db.fetch_one(users.select().where(users.c.id == id))
-        return user
+        if user == None:
+            return None
+        return schemas.User(id=user.id, email=user.email, name=user.name,password=user.password, creation_date=user.creation_date)
 
     async def get_users(self,skip: int = 0, limit: int = 100):
         query = users.select().offset(skip).limit(limit)
@@ -17,7 +19,9 @@ class Cruds:
 
     async def get_user_by_email(self,email: str):
         user = await db.fetch_one(users.select().where(users.c.email == email))
-        return user
+        if user == None:
+            return None
+        return schemas.User(id=user.id,email=user.email,name=user.name,password=user.password,creation_date=user.creation_date)
 
 
     async def create_user(self,user: schemas.SignUpUser):

@@ -51,6 +51,7 @@ async def root():
     return {"status": "Working"}
 
 
+
 @app.post("/users/",response_model=User)
 async def create_user(user: SignUpUser):
     db_user = await crud.get_user_by_email(email=user.email)
@@ -83,7 +84,7 @@ async def delete_user(user: UserDelete):
 async def read_user(user_id: int):
     db_user = await crud.get_user_by_id(id=user_id)
     if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=400, detail="No such user")
     return db_user
 
 
