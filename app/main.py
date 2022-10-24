@@ -1,3 +1,5 @@
+
+
 import psycopg2
 import databases
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,7 +9,7 @@ import aioredis
 from app.database import db
 from app.config import settings
 from app.schemas import *
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Response,status
 from sqlalchemy.orm import Session
 from app.crud import Cruds
 from app.routes import router
@@ -80,8 +82,14 @@ async def delete_user(user: UserDelete):
     else:
         raise HTTPException(status_code=400, detail="No such user")
 
-@app.get("/users/{user_id}",response_model=User)
-async def read_user(user_id: int):
+@app.get("/users/{user_id}")
+async def read_user(response: Response, user_id: int,token: str = Depends(token_auth_scheme)):
+
+    result = VerifyToken(token.credentials).verify()
+    if result.get("status"):
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return result
+
     db_user = await crud.get_user_by_id(id=user_id)
     if db_user is None:
         raise HTTPException(status_code=400, detail="No such user")
