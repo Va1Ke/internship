@@ -51,14 +51,14 @@ async def root():
     return {"status": "Working"}
 
 
-@app.post("/users/")
+@app.post("/users/",response_model=User)
 async def create_user(user: SignUpUser):
     db_user = await crud.get_user_by_email(email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     return await crud.create_user(user=user)
 
-@app.put("/update-user/")
+@app.put("/update-user/",response_model=User)
 async def update_user(user: UserUpdate):
     #result = VerifyToken(token.credentials).verify()
     db_user = await crud.get_user_by_id(id=user.id)
@@ -75,11 +75,11 @@ async def read_users(skip: int = 0, limit: int = 100):
 async def delete_user(user: UserDelete):
     db_user = crud.get_user_by_email(email=user.email)
     if db_user:
-        return crud.delete_user(user=user)
+        return await crud.delete_user(user=user)
     else:
-        return HTTPException(status_code=400, detail="No such user")
+        raise HTTPException(status_code=400, detail="No such user")
 
-@app.get("/users/{user_id}")
+@app.get("/users/{user_id}",response_model=User)
 async def read_user(user_id: int):
     db_user = await crud.get_user_by_id(id=user_id)
     if db_user is None:
