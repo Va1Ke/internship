@@ -9,13 +9,13 @@ from app.config import settings
 from app.schemas import *
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
-from app.crud import Cruds as crud
+from app.crud import Cruds
 from app.routes import router
 from fastapi.security import HTTPBearer
 from app.utils import VerifyToken
 
 token_auth_scheme = HTTPBearer()
-
+crud = Cruds()
 
 
 app = FastAPI()
@@ -53,20 +53,18 @@ async def root():
 
 @app.post("/users/")
 async def create_user(user: SignUpUser):
-    #print(f"({user.email})")
     db_user = await crud.get_user_by_email(email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     return await crud.create_user(user=user)
 
 @app.put("/update-user/")
-async def update_user(id: int, email: str, name: str, password: str):
+async def update_user(user: UserUpdate):
     #result = VerifyToken(token.credentials).verify()
-    db_user = await crud.get_user_by_id(user_id=id)
+    db_user = await crud.get_user_by_id(id=user.id)
     if not db_user:
         raise HTTPException(status_code=400, detail="No such user")
-    user_id = await crud.update_user(id_=id,email_=email,name_=name,password_=password)
-    return user_id
+    return await crud.update_user(user=user)
 
 
 @app.get("/users/", response_model=list[User])
@@ -77,8 +75,7 @@ async def read_users(skip: int = 0, limit: int = 100):
 async def delete_user(user: UserDelete):
     db_user = crud.get_user_by_email(email=user.email)
     if db_user:
-        crud.delete_user(user=user)
-        return HTTPException(status_code=200, detail="User deleted successfully")
+        return crud.delete_user(user=user)
     else:
         return HTTPException(status_code=400, detail="No such user")
 
