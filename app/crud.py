@@ -15,7 +15,7 @@ class Cruds:
     async def get_users(self,skip: int = 0, limit: int = 100):
         query = users.select().offset(skip).limit(limit)
         users_to_dict = await db.fetch_all(query=query)
-        return users_to_dict
+        return [schemas.User(**user) for user in users_to_dict]
 
     async def get_user_by_email(self,email: str):
         user = await db.fetch_one(users.select().where(users.c.email == email))

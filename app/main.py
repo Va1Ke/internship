@@ -1,7 +1,3 @@
-
-
-import psycopg2
-import databases
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import asyncio
@@ -9,12 +5,14 @@ import aioredis
 from app.database import db
 from app.config import settings
 from app.schemas import *
-from fastapi import Depends, FastAPI, HTTPException, Response,status
+from fastapi import Depends, FastAPI, HTTPException, Response, status, Body
 from sqlalchemy.orm import Session
 from app.crud import Cruds
 from app.routes import router
 from fastapi.security import HTTPBearer
 from app.utils import VerifyToken
+from app.auth.auth_handler import signJWT
+from app.auth.auth_bearer import JWTBearer
 
 token_auth_scheme = HTTPBearer()
 crud = Cruds()
@@ -70,7 +68,7 @@ async def update_user(user: UserUpdate):
     return await crud.update_user(user=user)
 
 
-@app.get("/users/", response_model=list[User])
+@app.get("/users/", response_model=list[User], dependencies=[Depends(JWTBearer())])
 async def read_users(skip: int = 0, limit: int = 100):
     return await crud.get_users(skip=skip, limit=limit)
 
@@ -83,7 +81,7 @@ async def delete_user(user: UserDelete):
         raise HTTPException(status_code=400, detail="No such user")
 
 @app.get("/users/{user_id}")
-async def read_user(response: Response, user_id: int,token: str = Depends(token_auth_scheme)):
+async def read_user(response: Response, user_id: int, token: str = Depends(token_auth_scheme)):
 
     result = VerifyToken(token.credentials).verify()
     if result.get("status"):
@@ -94,6 +92,26 @@ async def read_user(response: Response, user_id: int,token: str = Depends(token_
     if db_user is None:
         raise HTTPException(status_code=400, detail="No such user")
     return db_user
+
+registered_users=[]
+@app.post("/user/signup", tags=["user"])
+def create_user_custom(user: SignUpUser):
+    registered_users.append(user)
+    return signJWT(user.email)
+
+@app.post("/user/login", tags=["user"])
+def user_login_custom(user: SignInUser):
+    if check_user(user):
+        return signJWT(user.email)
+    return {
+        "error": "Wrong login details!"
+    }
+
+def check_user(data: SignInUser):
+    for user in registered_users:
+        if user.email == data.email and user.password == data.password:
+            return True
+    return False
 
 
 app.include_router(router)
