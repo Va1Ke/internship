@@ -27,6 +27,12 @@ class User(UserBase):
     password: str
     creation_date: datetime.datetime = datetime.datetime.now()
 
+class UserInDB(UserBase):
+    id: int
+    name: str
+    password: str
+    creation_date: datetime.datetime = datetime.datetime.now()
+
 class UserList(UserBase):
     id: int
     name: str

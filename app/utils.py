@@ -1,10 +1,49 @@
 import os
+from datetime import datetime, timedelta
 import jwt
+from fastapi import Response, Depends, HTTPException
+from fastapi.security import HTTPBearer
+from starlette import status
+from app.crud import crud
+from app.config import settings
 from configparser import ConfigParser
+from app.config_for_auth import settings_for_auth
+
+token_auth_scheme = HTTPBearer()
+
+async def create_access_token(email: str, expires_delta: timedelta = None) -> str:
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+    to_encode = {"exp": expire, "email": email}
+    config = set_up()
+    encoded_jwt = jwt.encode(to_encode, config["SECRET"], algorithm=config["MY_ALGORITHMS"])
+    return encoded_jwt
+
+async def get_current_user(response: Response, token: str = Depends(token_auth_scheme)):
+    pyload_from_auth = VerifyToken(token.credentials).verify()
+    if pyload_from_auth.get("status"):
+        pyload_from_me = VerifyToken(token.credentials).verify_my()
+        if pyload_from_me.get("status"):
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return response
+
+        user = await crud.get_user_by_email(pyload_from_me.get("email"))
+        if not user:
+            raise HTTPException(status_code=404,detail="User not found")
+        return user
+
+    user = await crud.get_user_by_email(email=pyload_from_auth.get("email"))
+    if not user:
+        user = await crud.create_user_by_email(email=pyload_from_auth.get("email"))
+    return user
+
 
 
 def set_up():
-    """Sets up configuration for the app"""
 
     env = os.getenv("ENV", ".config")
 
@@ -14,10 +53,15 @@ def set_up():
         config = config["AUTH0"]
     else:
         config = {
-            "DOMAIN": os.getenv("DOMAIN", "your.domain.com"),
-            "API_AUDIENCE": os.getenv("API_AUDIENCE", "your.audience.com"),
-            "ISSUER": os.getenv("ISSUER", "https://your.domain.com/"),
-            "ALGORITHMS": os.getenv("ALGORITHMS", "RS256"),
+            "CLIENT_ID": "0JlQutb3N96JAilJEld9ko4kEQ68SQL9",
+            "CLIENT_SECRET": "p8mWSIoI69gEIsOpT9bojPI6JU21QVCs63AaLXiVx8-0g6DtocD56PCn-xOUxR8g",
+            "DOMAIN": "dev-3uiuaomn5jihlwx4.us.auth0.com",
+            "API_AUDIENCE": "https://example.com",
+            "ISSUER": "https://dev-3uiuaomn5jihlwx4.us.auth0.com/",
+            "ALGORITHMS": "RS256",
+            "MY_ALGORITHMS": "HS256",
+            "SECRET": "96fe730b8847f4847566f393c51d51cf",
+            "CONNECTION": "Username-Password-Authentication"
         }
     return config
 
@@ -51,6 +95,17 @@ class VerifyToken():
                 algorithms=self.config["ALGORITHMS"],
                 audience=self.config["API_AUDIENCE"],
                 issuer=self.config["ISSUER"],
+            )
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+        return payload
+
+    def verify_my(self):
+        try:
+            payload = jwt.decode(
+                self.token,
+                self.config["SECRET"],
+                algorithms=[self.config["MY_ALGORITHMS"]],
             )
         except Exception as e:
             return {"status": "error", "message": str(e)}
