@@ -13,11 +13,7 @@ class SignUpUser(UserBase):
     password: str
     creation_date: datetime.datetime = datetime.datetime.now()
 
-class UserDelete(UserBase):
-    password: str
-
 class UserUpdate(UserBase):
-    id: int
     name: str
     password: str
 

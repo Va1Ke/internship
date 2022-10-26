@@ -37,20 +37,19 @@ class Cruds:
         user_by_email = await db.fetch_one(users.select().where(users.c.email == email))
         return schemas.User(**user_by_email)
 
-    async def delete_user(self,user: schemas.UserDelete):
+    async def delete_user(self,user: schemas.UserBase):
         query = users.delete().where(users.c.email == user.email)
         await db.execute(query=query)
         return HTTPException(status_code=200, detail="Success")
 
     async def update_user(self,user : schemas.UserUpdate):
-        query = (users.update().where(users.c.id == user.id).values(
-        email=user.email,
+        query = (users.update().where(users.c.email == user.email).values(
         name=user.name,
         password=user.password
         ).returning(users.c.id))
         await db.execute(query=query)
-        changed_user = await db.fetch_one(users.select().where(users.c.id == user.id))
+        changed_user = await db.fetch_one(users.select().where(users.c.email == user.email))
         #return changed_user
-        return schemas.User(id=changed_user.id,email=changed_user.email,name=changed_user.name,creation_date=changed_user.creation_date)
+        return schemas.User(id=changed_user.id,email=changed_user.email,password=changed_user.password,name=changed_user.name,creation_date=changed_user.creation_date)
 
 crud = Cruds()

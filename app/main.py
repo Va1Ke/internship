@@ -10,7 +10,7 @@ from app.schemas import *
 from fastapi import Depends, FastAPI, HTTPException, Response, status
 from app.crud import crud
 from app.routes import router
-from app.utils import create_access_token, get_current_user, set_up
+from app.utils import create_access_token, get_current_user, set_up, get_email_from_token
 
 
 app = FastAPI()
@@ -56,25 +56,22 @@ async def create_user(user: SignUpUser):
     return await crud.create_user(user=user)
 
 @app.put("/update-user/",response_model=User)
-async def update_user(user: UserUpdate):
-    #result = VerifyToken(token.credentials).verify()
-    db_user = await crud.get_user_by_id(id=user.id)
-    if not db_user:
-        raise HTTPException(status_code=400, detail="No such user")
-    return await crud.update_user(user=user)
-
+async def update_user(user: UserUpdate, email: str = Depends(get_email_from_token)):
+    if user.email == email:
+        return await crud.update_user(user=user)
+    else:
+        raise HTTPException(status_code=400, detail="No such user or you have no permissions to do that")
 
 @app.get("/users/", response_model=list[User])
 async def read_users(skip: int = 0, limit: int = 100):
     return await crud.get_users(skip=skip, limit=limit)
 
-@app.delete("/users/")
-async def delete_user(user: UserDelete):
-    db_user = crud.get_user_by_email(email=user.email)
-    if db_user:
+@app.delete("/delete-user/")
+async def delete_user(user: UserBase, email: str = Depends(get_email_from_token)):
+    if user.email == email:
         return await crud.delete_user(user=user)
     else:
-        raise HTTPException(status_code=400, detail="No such user")
+        raise HTTPException(status_code=400, detail="No such user or you have no permissions to do that")
 
 @app.get("/users/{user_id}")
 async def read_user(user_id: int):
@@ -123,7 +120,7 @@ async def sign_up_my(user: SignUpUser):
             f"\"grant_type\":\"client_credentials\"" \
            "}"
     headers = {"content-type":"application/json"}
-    conn.request("POST","/dbconnections/signup",pyload,headers)
+    conn.request("POST", "/dbconnections/signup", pyload, headers)
     conn.getresponse()
 
     user = await crud.create_user(user)

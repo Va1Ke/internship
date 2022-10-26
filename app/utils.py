@@ -1,4 +1,3 @@
-import os
 from datetime import datetime, timedelta
 import jwt
 from fastapi import Response, Depends, HTTPException
@@ -6,7 +5,6 @@ from fastapi.security import HTTPBearer
 from starlette import status
 from app.crud import crud
 from app.config import settings
-from configparser import ConfigParser
 
 token_auth_scheme = HTTPBearer()
 
@@ -39,6 +37,16 @@ async def get_current_user(response: Response, token: str = Depends(token_auth_s
     if not user:
         user = await crud.create_user_by_email(email=pyload_from_auth.get("email"))
     return user
+
+async def get_email_from_token(response: Response, token: str = Depends(token_auth_scheme)):
+    pyload_from_auth = VerifyToken(token.credentials).verify()
+    if pyload_from_auth.get("status"):
+        pyload_from_me = VerifyToken(token.credentials).verify_my()
+        if pyload_from_me.get("status"):
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return response
+        return pyload_from_me.get("email")
+    return pyload_from_auth.get("email")
 
 
 
