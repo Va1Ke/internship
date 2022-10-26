@@ -7,7 +7,6 @@ from starlette import status
 from app.crud import crud
 from app.config import settings
 from configparser import ConfigParser
-from app.config_for_auth import settings_for_auth
 
 token_auth_scheme = HTTPBearer()
 
@@ -44,24 +43,16 @@ async def get_current_user(response: Response, token: str = Depends(token_auth_s
 
 
 def set_up():
-
-    env = os.getenv("ENV", ".config")
-
-    if env == ".config":
-        config = ConfigParser()
-        config.read(".config")
-        config = config["AUTH0"]
-    else:
-        config = {
-            "CLIENT_ID": "0JlQutb3N96JAilJEld9ko4kEQ68SQL9",
-            "CLIENT_SECRET": "p8mWSIoI69gEIsOpT9bojPI6JU21QVCs63AaLXiVx8-0g6DtocD56PCn-xOUxR8g",
-            "DOMAIN": "dev-3uiuaomn5jihlwx4.us.auth0.com",
-            "API_AUDIENCE": "https://example.com",
-            "ISSUER": "https://dev-3uiuaomn5jihlwx4.us.auth0.com/",
-            "ALGORITHMS": "RS256",
-            "MY_ALGORITHMS": "HS256",
-            "SECRET": "96fe730b8847f4847566f393c51d51cf",
-            "CONNECTION": "Username-Password-Authentication"
+    config = {
+        "CLIENT_ID": settings.CLIENT_ID,
+        "CLIENT_SECRET": settings.CLIENT_SECRET,
+        "DOMAIN": settings.DOMAIN,
+        "API_AUDIENCE": settings.API_AUDIENCE,
+        "ISSUER": settings.ISSUER,
+        "ALGORITHMS": settings.ALGORITHMS,
+        "MY_ALGORITHMS": settings.MY_ALGORITHMS,
+        "SECRET": settings.SECRET,
+        "CONNECTION": settings.CONNECTION
         }
     return config
 

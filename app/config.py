@@ -13,4 +13,15 @@ class Settings:
     POSTGRES_DB: str = os.getenv("POSTGRES_DB")
     DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
 
+    DOMAIN: str = os.getenv("DOMAIN")
+    API_AUDIENCE: str = os.getenv("API_AUDIENCE")
+    SECRET: str = os.getenv("SECRET")
+    ALGORITHMS: str = os.getenv("ALGORITHMS")
+    MY_ALGORITHMS: str = os.getenv("MY_ALGORITHMS")
+    ISSUER: str = os.getenv("ISSUER")
+    CLIENT_ID: str = os.getenv("CLIENT_ID")
+    CLIENT_SECRET: str = os.getenv("CLIENT_SECRET")
+    CONNECTION: str = os.getenv("CONNECTION")
+    ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
+
 settings = Settings()

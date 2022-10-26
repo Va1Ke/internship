@@ -1,6 +1,5 @@
 import http.client
 from datetime import timedelta
-
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import asyncio
@@ -11,10 +10,7 @@ from app.schemas import *
 from fastapi import Depends, FastAPI, HTTPException, Response, status
 from app.crud import crud
 from app.routes import router
-from fastapi.security import HTTPBearer
-from app.utils import VerifyToken, create_access_token, token_auth_scheme, get_current_user, set_up
-from pathlib import Path
-from app.config_for_auth import settings_for_auth
+from app.utils import create_access_token, get_current_user, set_up
 
 
 app = FastAPI()
@@ -104,7 +100,7 @@ def get_me(user: User = Depends(get_current_user)):
 async def sign_in_my(user: SignInUser):
     user_check = await crud.get_user_by_email(user.email)
     if user_check and user_check.password == user.password:
-        access_token_expires = timedelta(minutes=settings_for_auth.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         token = await create_access_token(user.email,expires_delta=access_token_expires)
         return token
     else:
@@ -131,29 +127,9 @@ async def sign_up_my(user: SignUpUser):
     conn.getresponse()
 
     user = await crud.create_user(user)
-    access_token_expires = timedelta(minutes=settings_for_auth.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     token = await create_access_token(user.email,expires_delta=access_token_expires)
     return token
-# registered_users=[]
-# @app.post("/user/signup", tags=["user"])
-# def create_user_custom(user: SignUpUser):
-#     registered_users.append(user)
-#     return signJWT(user.email)
-#
-# @app.post("/user/login", tags=["user"])
-# def user_login_custom(user: SignInUser):
-#     if check_user(user):
-#         return signJWT(user.email)
-#     return {
-#         "error": "Wrong login details!"
-#     }
-#
-# def check_user(data: SignInUser):
-#     for user in registered_users:
-#         if user.email == data.email and user.password == data.password:
-#             return True
-#     return False
-
 
 app.include_router(router)
 
