@@ -11,11 +11,13 @@ class SignInUser(UserBase):
 class SignUpUser(UserBase):
     name: str
     password: str
+    creation_date: datetime.datetime = datetime.datetime.now()
 
 class UserDelete(UserBase):
     password: str
 
 class UserUpdate(UserBase):
+    id: int
     name: str
     password: str
 
@@ -23,9 +25,13 @@ class User(UserBase):
     id: int
     name: str
     password: str
+    creation_date: datetime.datetime = datetime.datetime.now()
 
-    class Config:
-        orm_mode = True
+class UserInDB(UserBase):
+    id: int
+    name: str
+    password: str
+    creation_date: datetime.datetime = datetime.datetime.now()
 
 class UserList(UserBase):
     id: int
