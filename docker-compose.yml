@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  db:
+    container_name: db
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - /var/lib/postgresql/data
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - cache:/data
+
+  web:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 80
+    volumes:
+      - .:/app
+    ports:
+      - 80:80
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - cache
+
+  pgweb:
+    image: sosedoff/pgweb
+    ports:
+      - "8081:8081"
+    environment:
+      - DATABASE_URL=postgresql://admin:admin@db:5432/postgresdb?sslmode=disable
+    depends_on:
+      - db
+
+volumes:
+  db_volume:
+    external: true
+  cache:
+    driver: local
