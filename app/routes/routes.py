@@ -1,11 +1,11 @@
 from fastapi import APIRouter
-from app.utils import create_access_token, get_current_user, set_up, get_email_from_token
-from fastapi import Depends, HTTPException, Response, status
+from app.utils.utils import create_access_token, get_current_user, set_up, get_email_from_token
+from fastapi import Depends, HTTPException
 from app.config import settings
-from app.schemas import *
+from app.schemas.schemas import *
 import http.client
 from datetime import timedelta
-from app.crud import crud
+from app.cruds.crud import crud
 
 router = APIRouter()
 

@@ -1,11 +1,9 @@
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-import asyncio
-import aioredis
 from app.database import db
 from app.config import settings
 from fastapi import FastAPI
-from app.routes import router
+from app.routes.routes import router
 
 
 app = FastAPI()

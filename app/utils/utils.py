@@ -3,7 +3,7 @@ import jwt
 from fastapi import Response, Depends, HTTPException
 from fastapi.security import HTTPBearer
 from starlette import status
-from app.crud import crud
+from app.cruds.crud import crud
 from app.config import settings
 
 token_auth_scheme = HTTPBearer()

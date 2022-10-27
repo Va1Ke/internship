@@ -1,8 +1,7 @@
-from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from datetime import datetime
-from app import schemas
-from app.models import users
+from app.schemas import schemas
+from app.models.models import users
 from app.database import db
 
 class Cruds:
