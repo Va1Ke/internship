@@ -21,7 +21,7 @@ async def create(invitation: InvitationAdd, email: str = Depends(get_email_from_
         raise HTTPException(status_code=400,detail="No permission")
 
 
-@router.get("/check-my-invitation/", tags=["Invitation from owner"], response_model=list)
+@router.get("/check-my-invitation/", tags=["Invitation from owner"], response_model=list[InvitationReturnFromCreation])
 async def check(email: str = Depends(get_email_from_token)):
     invited = await user_crud.get_user_by_email(email)
     return await from_owner_crud.get_invitation_by_invented_id(invited.id)

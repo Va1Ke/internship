@@ -26,7 +26,7 @@ async def create(company_id: int, user_id: int, email: str = Depends(get_email_f
     else:
         raise HTTPException(status_code=400, detail="No permission")
 
-@router.post("/show-requests-from-users/", tags=["company"], response_model=list)
+@router.post("/show-requests-from-users/", tags=["company"], response_model=list[requst_from_user_schemas.UserRequestReturn])
 async def create(company_id: int, email: str = Depends(get_email_from_token)):
     owner = await user_crud.get_user_by_email(email)
     company = await company_crud.get_company_by_id(company_id)
@@ -72,7 +72,7 @@ async def delete_user(company_id: int, user_id: int, email: str = Depends(get_em
     else:
         raise HTTPException(status_code=400, detail="No permission")
 
-@router.post("/get-company-by-owner/", tags=["company"], response_model=list)
+@router.post("/get-company-by-owner/", tags=["company"], response_model=list[company_schemas.CompanyReturn])
 async def get_company_by_owner(email: str = Depends(get_email_from_token)):
     user_exist = await user_crud.get_user_by_email(email)
     if user_exist:
@@ -80,6 +80,6 @@ async def get_company_by_owner(email: str = Depends(get_email_from_token)):
     else:
         raise HTTPException(status_code=400, detail="No such user")
 
-@router.post("/show-companies/", tags=["company"], response_model=list)
+@router.post("/show-companies/", tags=["company"], response_model=list[company_schemas.CompanyReturn])
 async def show_companies():
     return await company_crud.get_companies()
