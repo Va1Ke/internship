@@ -5,18 +5,19 @@ from app.config import settings
 from app.schemas.company_schemas import *
 import http.client
 from datetime import timedelta
+from app.schemas import company_schemas, requst_from_user_schemas, user_of_company_schemas, invitation_from_owner_schemas
 from app.cruds.company_crud import crud as company_crud
 from app.cruds.request_from_user_crud import crud as req_from_user_crud
 from app.cruds.crud import crud as user_crud
 
 router = APIRouter()
 
-@router.post("/create-company/", tags=["company"])
+@router.post("/create-company/", tags=["company"], response_model=company_schemas.CompanyReturn)
 async def create(company: Company, email: str = Depends(get_email_from_token)):
     owner = await user_crud.get_user_by_email(email)
     return await company_crud.create_company(company=company, owner_id=owner.id)
 
-@router.post("/add-to-admins/", tags=["company"])
+@router.post("/add-to-admins/", tags=["company"], response_model=user_of_company_schemas.UserOfCompanyReturn)
 async def create(company_id: int, user_id: int, email: str = Depends(get_email_from_token)):
     owner = await user_crud.get_user_by_email(email)
     company = await company_crud.get_company_by_id(company_id)
@@ -25,7 +26,7 @@ async def create(company_id: int, user_id: int, email: str = Depends(get_email_f
     else:
         raise HTTPException(status_code=400, detail="No permission")
 
-@router.post("/show-requests-from-users/", tags=["company"])
+@router.post("/show-requests-from-users/", tags=["company"], response_model=list)
 async def create(company_id: int, email: str = Depends(get_email_from_token)):
     owner = await user_crud.get_user_by_email(email)
     company = await company_crud.get_company_by_id(company_id)
@@ -34,7 +35,7 @@ async def create(company_id: int, email: str = Depends(get_email_from_token)):
     else:
         raise HTTPException(status_code=400, detail="No permission")
 
-@router.post("/accept-request-from-user/", tags=["company"])
+@router.post("/accept-request-from-user/", tags=["company"], response_model=invitation_from_owner_schemas.UserCompanyReturn)
 async def accept_request_from_user(request_id: int, email: str = Depends(get_email_from_token)):
     owner = await user_crud.get_user_by_email(email)
     request = await req_from_user_crud.get_request_by_id(request_id)
@@ -44,7 +45,7 @@ async def accept_request_from_user(request_id: int, email: str = Depends(get_ema
     else:
         raise HTTPException(status_code=400, detail="No permission")
 
-@router.put("/update-company/", tags=["company"])
+@router.put("/update-company/", tags=["company"], response_model=company_schemas.CompanyReturn)
 async def update(company: UpdateCompany, email: str = Depends(get_email_from_token)):
     owner = await user_crud.get_user_by_email(email)
     company_get = await company_crud.get_company_by_id(company.id)
@@ -58,7 +59,7 @@ async def delete(company_id: int, email: str = Depends(get_email_from_token)):
     owner = await user_crud.get_user_by_email(email)
     company = await company_crud.get_company_by_id(company_id)
     if company.owner_id == owner.id:
-        return await company_crud.delete_user_from_company()
+        return await company_crud.delete_company(company_id)
     else:
         raise HTTPException(status_code=400, detail="No permission")
 
@@ -67,11 +68,11 @@ async def delete_user(company_id: int, user_id: int, email: str = Depends(get_em
     owner = await user_crud.get_user_by_email(email)
     company = await company_crud.get_company_by_id(company_id)
     if company.owner_id == owner.id:
-        return await company_crud.delete_user_from_company(company_id=company_id,user_id=user_id)
+        return await company_crud.delete_user_from_company(company_id=company_id, user_id=user_id)
     else:
         raise HTTPException(status_code=400, detail="No permission")
 
-@router.post("/get-company-by-owner/", tags=["company"])
+@router.post("/get-company-by-owner/", tags=["company"], response_model=list)
 async def get_company_by_owner(email: str = Depends(get_email_from_token)):
     user_exist = await user_crud.get_user_by_email(email)
     if user_exist:
@@ -79,6 +80,6 @@ async def get_company_by_owner(email: str = Depends(get_email_from_token)):
     else:
         raise HTTPException(status_code=400, detail="No such user")
 
-@router.post("/show-companies/", tags=["company"])
+@router.post("/show-companies/", tags=["company"], response_model=list)
 async def show_companies():
     return await company_crud.get_companies()

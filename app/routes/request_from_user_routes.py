@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from fastapi import Depends, HTTPException
 from app.utils.utils import get_email_from_token
 from app.config import settings
-from app.schemas.invitation_from_owner_schemas import *
+from app.schemas.requst_from_user_schemas import *
 import http.client
 from datetime import timedelta
 from app.cruds.company_crud import crud as company_crud
@@ -12,7 +12,7 @@ from app.cruds.request_from_user_crud import crud as req_from_user_crud
 
 router = APIRouter()
 
-@router.post("/create-request/", tags=["Request from user"])
+@router.post("/create-request/", tags=["Request from user"], response_model=UserRequestReturn)
 async def create(company_id: int, email: str = Depends(get_email_from_token)):
     user = await user_crud.get_user_by_email(email)
     return await req_from_user_crud.create_request(company_id=company_id, user_id=user.id)

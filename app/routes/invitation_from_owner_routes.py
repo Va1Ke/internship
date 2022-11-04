@@ -11,7 +11,7 @@ from app.cruds.invitation_from_owner_crud import crud as from_owner_crud
 
 router = APIRouter()
 
-@router.post("/invitation/", tags=["Invitation from owner"])
+@router.post("/invitation/", tags=["Invitation from owner"], response_model=InvitationReturnFromCreation)
 async def create(invitation: InvitationAdd, email: str = Depends(get_email_from_token)):
     owner = await user_crud.get_user_by_email(email)
     company = await company_crud.get_company_by_id(invitation.company_id)
@@ -21,13 +21,13 @@ async def create(invitation: InvitationAdd, email: str = Depends(get_email_from_
         raise HTTPException(status_code=400,detail="No permission")
 
 
-@router.get("/check-my-invitation/", tags=["Invitation from owner"])
+@router.get("/check-my-invitation/", tags=["Invitation from owner"], response_model=list)
 async def check(email: str = Depends(get_email_from_token)):
     invited = await user_crud.get_user_by_email(email)
     return await from_owner_crud.get_invitation_by_invented_id(invited.id)
 
 
-@router.post("/accept/", tags=["Invitation from owner"])
+@router.post("/accept/", tags=["Invitation from owner"], response_model=UserCompanyReturn)
 async def accept(invitation_id: int, email: str = Depends(get_email_from_token)):
     invited = await user_crud.get_user_by_email(email)
     invitation = await from_owner_crud.get_invitation_by_id(invitation_id)

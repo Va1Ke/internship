@@ -34,14 +34,14 @@ async def delete_user(user: UserBase, email: str = Depends(get_email_from_token)
     else:
         raise HTTPException(status_code=400, detail="No such user or you have no permissions to do that")
 
-@router.get("/users/{user_id}")
+@router.get("/users/{user_id}", response_model=User)
 async def read_user(user_id: int):
     db_user = await crud.get_user_by_id(id=user_id)
     if db_user is None:
         raise HTTPException(status_code=400, detail="No such user")
     return db_user
 
-@router.get("/users/email/{user_email}")
+@router.get("/users/email/{user_email}", response_model=User)
 async def read_user_by_email(user_email: str):
     db_user = await crud.get_user_by_email(email=user_email)
     if db_user is None:
