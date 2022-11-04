@@ -3,6 +3,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from app.database import Base, SQLALCHEMY_DATABASE_URL
 from alembic import context
+from app.models.models import User, Company
 
 #BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #sys.path.append(BASE_DIR)
@@ -63,7 +64,7 @@ def run_migrations_online() -> None:
     alembic_config = config.get_section(config.config_ini_section)
     alembic_config['sqlalchemy.url'] = SQLALCHEMY_DATABASE_URL
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
+        alembic_config,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
