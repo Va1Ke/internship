@@ -3,7 +3,7 @@ import uvicorn
 from app.database import db
 from app.config import settings
 from fastapi import FastAPI
-from app.routes.routes import router
+from app.routes import company_routes,routes, invitation_from_owner_routes, request_from_user_routes
 
 
 app = FastAPI()
@@ -40,7 +40,10 @@ async def root():
     return {"status": "Working"}
 
 
-app.include_router(router)
+app.include_router(routes.router)
+app.include_router(company_routes.router)
+app.include_router(invitation_from_owner_routes.router)
+app.include_router(request_from_user_routes.router)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=80, reload=True)
