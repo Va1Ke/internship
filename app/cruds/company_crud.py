@@ -35,7 +35,7 @@ class Company_crud:
             return False
 
 
-    async def get_company(self, owner_id) -> list:
+    async def get_company(self, owner_id) -> list[company_schemas.CompanyReturn]:
         query = companies.select().where(companies.c.owner_id == owner_id)
         list_companies = await db.fetch_all(query=query)
         if list_companies == None:
@@ -49,7 +49,7 @@ class Company_crud:
             return None
         return [requst_from_user_schemas.UserRequestReturn(**request) for request in list]
 
-    async def get_companies(self) -> list:
+    async def get_companies(self) -> list[company_schemas.CompanyReturn]:
         query = companies.select().where(companies.c.hide == False)
         list_companies = await db.fetch_all(query=query)
         if list_companies == None:
