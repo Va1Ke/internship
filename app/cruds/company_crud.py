@@ -23,7 +23,7 @@ class Company_crud:
         record_id = await db.execute(query=query)
         return user_of_company_schemas.UserOfCompanyReturn(id=record_id, company_id=company_id, user_id=user_id, is_admin=True)
 
-    async def check_is_admin(self, company_id: int, user_id: int):
+    async def check_is_admin(self, company_id: int, user_id: int) -> bool:
         query = users_of_companys.select().where(and_(users_of_companys.c.company_id == company_id, users_of_companys.c.user_id == user_id))
         returned = await db.fetch_one(query=query)
         if returned == None:
