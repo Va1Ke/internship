@@ -7,7 +7,7 @@ from app.database import db
 
 class QuizQuestionAnswer:
 
-    async def add_answer(self, answer: quiz_question_answers_schemas.QuizQuestionAnswerEntry):
+    async def add_answer(self, answer: quiz_question_answers_schemas.QuizQuestionAnswerEntry) -> quiz_question_answers_schemas.QuizQuestionAnswerReturn:
         db_company = quiz_answers.insert().values(answer=answer.answer, question_id=answer.question_id)
         record_id = await db.execute(db_company)
         return quiz_question_answers_schemas.QuizQuestionAnswerReturn(**answer.dict(), id=record_id)

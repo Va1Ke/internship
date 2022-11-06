@@ -23,5 +23,7 @@ class Settings:
     CLIENT_SECRET: str = os.getenv("CLIENT_SECRET")
     CONNECTION: str = os.getenv("CONNECTION")
     ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
+    APPHOST: str =os.getenv(("APPHOST"))
+    APPPORT: str =os.getenv(("APPPORT"))
 
 settings = Settings()

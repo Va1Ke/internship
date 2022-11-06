@@ -8,18 +8,18 @@ from app.database import db
 
 class Quiz_crud:
 
-    async def create_quiz(self, quiz: quiz_schemas.QuizEntry):
+    async def create_quiz(self, quiz: quiz_schemas.QuizEntry) -> quiz_schemas.QuizReturn:
         db_company = quizzes.insert().values(company_id=quiz.company_id, name=quiz.name, description=quiz.description)
         record_id = await db.execute(db_company)
         return quiz_schemas.QuizReturn(**quiz.dict(), id=record_id)
 
-    async def get_quiz_by_id(self, id: int):
+    async def get_quiz_by_id(self, id: int) -> quiz_schemas.QuizReturn:
         quiz = await db.fetch_one(quizzes.select().where(quizzes.c.id == id))
         if quiz == None:
             return None
         return quiz_schemas.QuizReturn(**quiz)
 
-    async def update_quiz(self, quiz: quiz_schemas.QuizUpdateEntry):
+    async def update_quiz(self, quiz: quiz_schemas.QuizUpdateEntry) -> quiz_schemas.QuizReturn:
         query = (quizzes.update().where(quizzes.c.id == quiz.id).values(
             name=quiz.name,
             description=quiz.description,
@@ -35,7 +35,7 @@ class Quiz_crud:
         await db.execute(query=query)
         return HTTPException(status_code=200, detail="Success")
 
-    async def show_quizzes_in_company(self, company_id: int) -> list:
+    async def show_quizzes_in_company(self, company_id: int) -> list[quiz_schemas.QuizReturn]:
         query = quizzes.select().where(quizzes.c.company_id == company_id)
         list = await db.fetch_all(query=query)
         if list == None:

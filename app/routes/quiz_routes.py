@@ -17,7 +17,7 @@ router = APIRouter()
 
 
 @router.post("/create-quiz/", tags=["quiz"], response_model=QuizReturn)
-async def create(quiz: QuizEntry, email: str = Depends(get_email_from_token)):
+async def create(quiz: QuizEntry, email: str = Depends(get_email_from_token)) -> QuizReturn:
     owner = await user_crud.get_user_by_email(email)
     check_is_admin = await company_crud.check_is_admin(company_id=quiz.company_id, user_id=owner.id)
     company = await company_crud.get_company_by_id(quiz.company_id)
@@ -27,7 +27,7 @@ async def create(quiz: QuizEntry, email: str = Depends(get_email_from_token)):
         raise HTTPException(status_code=400, detail="No permission")
 
 @router.post("/show-quizzes-by-company/", tags=["quiz"], response_model=list[QuizReturn])
-async def get_quizzes_by_company(company_id: int, email: str = Depends(get_email_from_token)):
+async def get_quizzes_by_company(company_id: int, email: str = Depends(get_email_from_token)) -> list[QuizReturn]:
     owner = await user_crud.get_user_by_email(email)
     check_is_admin = await company_crud.check_is_admin(company_id=company_id, user_id=owner.id)
     company = await company_crud.get_company_by_id(company_id)
@@ -37,7 +37,7 @@ async def get_quizzes_by_company(company_id: int, email: str = Depends(get_email
         raise HTTPException(status_code=400, detail="No permission")
 
 @router.put("/update-quiz/", tags=["quiz"], response_model=QuizReturn)
-async def create(quiz_entry: QuizUpdateEntry, email: str = Depends(get_email_from_token)):
+async def create(quiz_entry: QuizUpdateEntry, email: str = Depends(get_email_from_token)) -> QuizReturn:
     owner = await user_crud.get_user_by_email(email)
     quiz = await quiz_crud.get_quiz_by_id(quiz_entry.id)
     check_is_admin = await company_crud.check_is_admin(company_id=quiz.company_id, user_id=owner.id)
@@ -59,7 +59,7 @@ async def create(quiz_id: int, email: str = Depends(get_email_from_token)):
         raise HTTPException(status_code=400, detail="No permission")
 
 @router.post("/add-question-to-quiz/", tags=["quiz"], response_model=quiz_questions_schemas.QuizQuestionReturn)
-async def add_question(question: quiz_questions_schemas.QuizQuestionEntry, email: str = Depends(get_email_from_token)):
+async def add_question(question: quiz_questions_schemas.QuizQuestionEntry, email: str = Depends(get_email_from_token)) -> quiz_questions_schemas.QuizQuestionReturn:
     owner = await user_crud.get_user_by_email(email)
     quiz = await quiz_crud.get_quiz_by_id(question.quiz_id)
     check_is_admin = await company_crud.check_is_admin(company_id=quiz.company_id, user_id=owner.id)
@@ -81,7 +81,7 @@ async def create(quiz_id: int, question_id: int, email: str = Depends(get_email_
         raise HTTPException(status_code=400, detail="No permission")
 
 @router.post("/add-answer-to-question/", tags=["quiz"], response_model=quiz_question_answers_schemas.QuizQuestionAnswerReturn)
-async def add_question(answer: quiz_question_answers_schemas.QuizQuestionAnswerEntry, email: str = Depends(get_email_from_token)):
+async def add_question(answer: quiz_question_answers_schemas.QuizQuestionAnswerEntry, email: str = Depends(get_email_from_token)) -> quiz_question_answers_schemas.QuizQuestionAnswerReturn:
     owner = await user_crud.get_user_by_email(email)
     question = await quiz_questions_crud.get_question_by_id(answer.question_id)
     quiz = await quiz_crud.get_quiz_by_id(question.quiz_id)

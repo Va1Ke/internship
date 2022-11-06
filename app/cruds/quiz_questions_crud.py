@@ -8,12 +8,12 @@ from app.database import db
 
 class QuizQuestions_crud:
 
-    async def add_question(self, question: quiz_questions_schemas.QuizQuestionEntry):
+    async def add_question(self, question: quiz_questions_schemas.QuizQuestionEntry) -> quiz_questions_schemas.QuizQuestionReturn:
         db_company = quiz_questions.insert().values(quiz_id=question.quiz_id, description=question.description)
         record_id = await db.execute(db_company)
         return quiz_questions_schemas.QuizQuestionReturn(**question.dict(), id=record_id)
 
-    async def get_question_by_id(self, id: int):
+    async def get_question_by_id(self, id: int) -> quiz_questions_schemas.QuizQuestionReturn:
         quiz = await db.fetch_one(quiz_questions.select().where(quiz_questions.c.id == id))
         if quiz == None:
             return None

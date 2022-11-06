@@ -47,4 +47,4 @@ app.include_router(request_from_user_routes.router)
 app.include_router(quiz_routes.router)
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=80, reload=True)
+    uvicorn.run("main:app", host=settings.APPHOST, port=settings.APPPORT, reload=True)
