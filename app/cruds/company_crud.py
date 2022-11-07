@@ -1,8 +1,6 @@
 from fastapi import HTTPException
 from datetime import datetime
-
 from sqlalchemy import and_
-
 from app.schemas import company_schemas, requst_from_user_schemas, user_of_company_schemas
 from app.models.models import companies, requests_from_user, users_of_companys
 from app.database import db
@@ -34,6 +32,13 @@ class Company_crud:
         else:
             return False
 
+    async def check_is_user_in_company(self, company_id: int, user_id: int) -> bool:
+        query = users_of_companys.select().where(and_(users_of_companys.c.company_id == company_id, users_of_companys.c.user_id == user_id))
+        returned = await db.fetch_one(query=query)
+        if returned == None:
+            return False
+        else:
+            return True
 
     async def get_company(self, owner_id) -> list[company_schemas.CompanyReturn]:
         query = companies.select().where(companies.c.owner_id == owner_id)

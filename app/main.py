@@ -1,9 +1,10 @@
+import aioredis
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from app.database import db
 from app.config import settings
 from fastapi import FastAPI
-from app.routes import company_routes,routes, invitation_from_owner_routes, request_from_user_routes, quiz_routes
+from app.routes import company_routes,routes, invitation_from_owner_routes, request_from_user_routes, quiz_routes, quiz_workflow_routes
 
 
 app = FastAPI()
@@ -28,12 +29,12 @@ app.add_middleware(
 async def startup():
     print(settings.DATABASE_URL)
     await db.connect()
-    #app.state.redis = await aioredis.from_url(REDIS_URL)
+    app.state.redis = await aioredis.from_url(settings.REDIS_URL)
 
 @app.on_event("shutdown")
 async def shutdown():
     await db.disconnect()
-    #await app.state.redis.close()
+    await app.state.redis.close()
 
 @app.get("/")
 async def root():
@@ -45,6 +46,7 @@ app.include_router(company_routes.router)
 app.include_router(invitation_from_owner_routes.router)
 app.include_router(request_from_user_routes.router)
 app.include_router(quiz_routes.router)
+app.include_router(quiz_workflow_routes.router)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host=settings.APPHOST, port=settings.APPPORT, reload=True)
