@@ -62,6 +62,7 @@ class Quiz(Base):
     name = Column(String)
     frequency_of_passage = Column(Integer)
     description = Column(String)
+    avg_result = Column(Integer, default=0)
     company_id = Column(Integer, ForeignKey("companies.id"))
     questions = relationship('QuizQuestion', backref='quiz_question')
 

@@ -5,6 +5,8 @@ class QuizReturn(BaseModel):
     name: str
     description: str
     company_id: int
+    avg_result: float
+    frequency_of_passage: int
 
 class QuizEntry(BaseModel):
     name: str

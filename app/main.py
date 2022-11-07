@@ -4,7 +4,7 @@ import uvicorn
 from app.database import db
 from app.config import settings
 from fastapi import FastAPI
-from app.routes import company_routes,routes, invitation_from_owner_routes, request_from_user_routes, quiz_routes, quiz_workflow_routes
+from app.routes import company_routes, routes, invitation_from_owner_routes, request_from_user_routes, quiz_routes, quiz_workflow_routes
 
 
 app = FastAPI()
@@ -36,9 +36,12 @@ async def shutdown():
     await db.disconnect()
     await app.state.redis.close()
 
-@app.get("/")
+@app.get("/redis")
 async def root():
-    return {"status": "Working"}
+    redis = await aioredis.from_url(settings.REDIS_URL)
+    async with redis.client() as conn:
+        await conn.set("answers",)
+    await redis.close()
 
 
 app.include_router(routes.router)

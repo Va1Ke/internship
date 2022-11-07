@@ -13,8 +13,8 @@ from app.cruds.crud import crud as user_crud
 
 router = APIRouter()
 
-@router.post("/get-quiz-questions/", tags=["quiz_workflow"])
-async def get_quiz_questions(quiz_id: int, email: str = Depends(get_email_from_token)):
+@router.post("/get-quiz-questions/", tags=["quiz_workflow"], response_model=list[quiz_workflow_schemas.QuizWorkFlowQuestionsReturn])
+async def get_quiz_questions(quiz_id: int, email: str = Depends(get_email_from_token)) -> list[quiz_workflow_schemas.QuizWorkFlowQuestionsReturn]:
     owner = await user_crud.get_user_by_email(email)
     quiz = await quiz_crud.get_quiz_by_id(quiz_id)
     company = await company_crud.get_company_by_id(quiz.company_id)
@@ -24,8 +24,8 @@ async def get_quiz_questions(quiz_id: int, email: str = Depends(get_email_from_t
     else:
         raise HTTPException(status_code=400, detail="No permission")
 
-@router.post("/enter-answers/", tags=["quiz_workflow"])
-async def enter_answers(quiz_id: int, answers: quiz_workflow_schemas.QuizWorkFlowEntering, email: str = Depends(get_email_from_token)):
+@router.post("/enter-answers/", tags=["quiz_workflow"], response_model=quiz_workflow_schemas.QuizWorkFlowReturn)
+async def enter_answers(quiz_id: int, answers: quiz_workflow_schemas.QuizWorkFlowEntering, email: str = Depends(get_email_from_token)) -> quiz_workflow_schemas.QuizWorkFlowReturn:
     owner = await user_crud.get_user_by_email(email)
     quiz = await quiz_crud.get_quiz_by_id(quiz_id)
     company = await company_crud.get_company_by_id(quiz.company_id)
