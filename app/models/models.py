@@ -15,18 +15,6 @@ class User(Base):
 users = User.__table__
 
 
-class Company(Base):
-    __tablename__ = "companies"
-    id = Column(Integer, primary_key=True, index=True,unique=True)
-    name = Column(String)
-    description = Column(Text)
-    creation_date = Column(DateTime)
-    updated = Column(DateTime)
-    hide = Column(Boolean)
-    owner_id = Column(Integer, ForeignKey("users.id"))
-
-companies = Company.__table__
-
 class UserOfCompany(Base):
     __tablename__ = "users_of_companys"
     id = Column(Integer, primary_key=True, index=True,unique=True)
@@ -53,3 +41,43 @@ class RequestFromUser(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
 
 requests_from_user = RequestFromUser.__table__
+
+class Company(Base):
+    __tablename__ = "companies"
+    id = Column(Integer, primary_key=True, index=True,unique=True)
+    name = Column(String)
+    description = Column(Text)
+    creation_date = Column(DateTime)
+    updated = Column(DateTime)
+    hide = Column(Boolean)
+    owner_id = Column(Integer, ForeignKey("users.id"))
+
+companies = Company.__table__
+
+class Quiz(Base):
+    __tablename__ = "quizzes"
+    id = Column(Integer, primary_key=True, index=True,unique=True)
+    name = Column(String)
+    frequency_of_passage = Column(Integer)
+    description = Column(String)
+    company_id = Column(Integer, ForeignKey("companies.id"))
+    questions = relationship('QuizQuestion', backref='quiz_question')
+
+quizzes = Quiz.__table__
+
+class QuizQuestion(Base):
+    __tablename__ = "quiz_questions"
+    id = Column(Integer, primary_key=True, index=True,unique=True)
+    description = Column(String)
+    quiz_id = Column(Integer, ForeignKey("quizzes.id"))
+    answers = relationship('QuizAnswer', backref='quiz_answer')
+
+quiz_questions = QuizQuestion.__table__
+
+class QuizAnswer(Base):
+    __tablename__ = "quiz_answers"
+    id = Column(Integer, primary_key=True, index=True,unique=True)
+    answer = Column(String)
+    question_id = Column(Integer, ForeignKey("quiz_questions.id"))
+
+quiz_answers = QuizAnswer.__table__

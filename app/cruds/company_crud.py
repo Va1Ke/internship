@@ -19,12 +19,23 @@ class Company_crud:
     async def add_to_admins_in_company(self, company_id: int, user_id: int) -> user_of_company_schemas.UserOfCompanyReturn:
         query = (users_of_companys.update().where(and_(users_of_companys.c.company_id == company_id, users_of_companys.c.user_id == user_id)).values(
             is_admin=True
-        ).returning(companies.c.id))
+        ).returning(users_of_companys.c.id))
         record_id = await db.execute(query=query)
-        return user_of_company_schemas.UserOfCompanyReturn(id = record_id, company_id=company_id, user_id=user_id, is_admin=True)
+        return user_of_company_schemas.UserOfCompanyReturn(id=record_id, company_id=company_id, user_id=user_id, is_admin=True)
+
+    async def check_is_admin(self, company_id: int, user_id: int) -> bool:
+        query = users_of_companys.select().where(and_(users_of_companys.c.company_id == company_id, users_of_companys.c.user_id == user_id))
+        returned = await db.fetch_one(query=query)
+        if returned == None:
+            return False
+        user = user_of_company_schemas.UserOfCompanyReturn(**returned)
+        if user.is_admin == True:
+            return True
+        else:
+            return False
 
 
-    async def get_company(self, owner_id) -> list:
+    async def get_company(self, owner_id) -> list[company_schemas.CompanyReturn]:
         query = companies.select().where(companies.c.owner_id == owner_id)
         list_companies = await db.fetch_all(query=query)
         if list_companies == None:
@@ -38,7 +49,7 @@ class Company_crud:
             return None
         return [requst_from_user_schemas.UserRequestReturn(**request) for request in list]
 
-    async def get_companies(self) -> list:
+    async def get_companies(self) -> list[company_schemas.CompanyReturn]:
         query = companies.select().where(companies.c.hide == False)
         list_companies = await db.fetch_all(query=query)
         if list_companies == None:
