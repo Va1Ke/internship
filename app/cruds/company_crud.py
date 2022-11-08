@@ -35,10 +35,10 @@ class Company_crud:
     async def check_is_user_in_company(self, company_id: int, user_id: int) -> bool:
         query = users_of_companys.select().where(and_(users_of_companys.c.company_id == company_id, users_of_companys.c.user_id == user_id))
         returned = await db.fetch_one(query=query)
-        if returned == None:
-            return False
+        if returned:
+            return bool(True)
         else:
-            return True
+            return bool(False)
 
     async def get_company(self, owner_id) -> list[company_schemas.CompanyReturn]:
         query = companies.select().where(companies.c.owner_id == owner_id)

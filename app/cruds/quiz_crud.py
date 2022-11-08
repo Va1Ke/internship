@@ -3,7 +3,7 @@ from datetime import datetime, date
 from sqlalchemy import and_
 from operator import itemgetter
 from app.cruds.quiz_questions_crud import crud as quiz_questions_crud
-from app.schemas import quiz_schemas, user_of_company_schemas, schemas, quiz_workflow_schemas
+from app.schemas import quiz_schemas, user_of_company_schemas, schemas, quiz_workflow_schemas, analitics_schemas
 from app.models.models import companies, users_of_companys, quizzes, users, quiz_workflows
 from app.database import db
 
@@ -43,28 +43,25 @@ class Quiz_crud:
             return None
         return [quiz_schemas.QuizReturn(**request) for request in list]
 
-    async def show_result_of_user(self, user_id: int) -> list[quiz_schemas.QuizReturn]:
-        query = users_of_companys.select().where(users_of_companys.c.user_id == user_id)
+    async def show_result_of_user(self, user_id: int) -> list[analitics_schemas.UserResult]:
+        query = quiz_workflows.select().where(quiz_workflows.c.user_id == user_id)
         list = await db.fetch_all(query=query)
         if list:
+            sorted_list = sorted(list, key=itemgetter('time'))
             k = 0
             avg_all = 0.0
-            last_time_quiz = date(2000, 9, 9)
-            for user in list:
-                avg_all = avg_all + user.avg_result
-                k = k+1
-                if user.last_time_quiz.date() > last_time_quiz:
-                    last_time_quiz = user.last_time_quiz
-
-            avg = avg_all/k
-            query = users.select().where(users.c.id == user_id)
-            user = await db.fetch_one(query=query)
-
-            return schemas.UserAvgAll(**user, avg_quiz_result=avg, last_time_quiz=last_time_quiz)
+            returned_list = []
+            for item in sorted_list:
+                user = quiz_workflow_schemas.QuizWorkFlowReturn(**item)
+                avg_all = avg_all + user.result
+                k = k + 1
+                avg = avg_all / k
+                returned_list.append(analitics_schemas.UserResult(avg=avg, time=user.time))
+            return returned_list
         else:
-            raise HTTPException(status_code=400, detail="No such user")
+            raise HTTPException(status_code=400, detail="No such quiz")
 
-    async def show_quiz_result_by_user(self, quiz_id: int, user_id: int):
+    async def show_quiz_result_by_user(self, quiz_id: int, user_id: int) -> list[analitics_schemas.UserResult]:
         query = quiz_workflows.select().where(and_(quiz_workflows.c.quiz_id == quiz_id, quiz_workflows.c.user_id == user_id))
         list = await db.fetch_all(query=query)
         if list:
@@ -77,14 +74,13 @@ class Quiz_crud:
                 avg_all = avg_all + user.result
                 k = k+1
                 avg = avg_all / k
-                dict = {avg: user.time}
-                returned_list.append(dict)
+                returned_list.append(analitics_schemas.UserResult(avg=avg,time=user.time))
 
             return returned_list
         else:
             raise HTTPException(status_code=400, detail="No such quiz")
 
-    async def show_user_quiz_list(self, user_id: int):
+    async def show_user_quiz_list(self, user_id: int) -> list[analitics_schemas.UserQuizList]:
         query = quiz_workflows.select().where(quiz_workflows.c.user_id == user_id)
         list = await db.fetch_all(query=query)
         if list:
@@ -93,14 +89,13 @@ class Quiz_crud:
             returned_list = []
             for item in sorted_list:
                 user = quiz_workflow_schemas.QuizWorkFlowReturn(**item)
-                dict = {user.quiz_id: user.time}
-                returned_list.append(dict)
+                returned_list.append(analitics_schemas.UserQuizList(quiz_id=user.quiz_id,time=user.time))
 
             return returned_list
         else:
             raise HTTPException(status_code=400, detail="No such quiz")
 
-    async def show_all_result_by_company(self, company_id: int):
+    async def show_all_result_by_company(self, company_id: int) -> list[dict]:
         query = quiz_workflows.select().where(quiz_workflows.c.company_id == company_id)
         list = await db.fetch_all(query=query)
         if list:
@@ -113,14 +108,13 @@ class Quiz_crud:
                 avg_all = avg_all + user.result
                 k = k+1
                 avg = avg_all / k
-                dict = {avg: user.time}
-                returned_list.append(dict)
+                returned_list.append(analitics_schemas.UserResult(avg=avg, time=user.time))
 
             return returned_list
         else:
             raise HTTPException(status_code=400, detail="No such quiz")
 
-    async def show_all_result_by_company_and_user(self, company_id: int, user_id: int):
+    async def show_all_result_by_company_and_user(self, company_id: int, user_id: int) -> list[analitics_schemas.UserResult]:
         query = quiz_workflows.select().where(and_(quiz_workflows.c.company_id == company_id, quiz_workflows.c.user_id == user_id))
         list = await db.fetch_all(query=query)
         if list:
@@ -133,14 +127,13 @@ class Quiz_crud:
                 avg_all = avg_all + user.result
                 k = k+1
                 avg = avg_all / k
-                dict = {avg: user.time}
-                returned_list.append(dict)
+                returned_list.append(analitics_schemas.UserResult(avg=avg, time=user.time))
 
             return returned_list
         else:
             raise HTTPException(status_code=400, detail="No such quiz")
 
-    async def list_user_of_company_and_last_time(self, company_id: int):
+    async def list_user_of_company_and_last_time(self, company_id: int) -> list[analitics_schemas.ListUsersOfCompanyAndLastTime]:
         query = quiz_workflows.select().where(quiz_workflows.c.company_id == company_id)
         list = await db.fetch_all(query=query)
         if list:
@@ -151,9 +144,7 @@ class Quiz_crud:
                 query = users_of_companys.select().where(users_of_companys.c.user_id == item.user_id)
                 user = await db.fetch_one(query=query)
                 user_to_add = user_of_company_schemas.UserOfCompanyReturnAvgAll(**user)
-
-                dict = {user_to_add.user_id: user_to_add.last_time_quiz}
-                returned_list.append(dict)
+                returned_list.append(analitics_schemas.ListUsersOfCompanyAndLastTime(user_id=user_to_add.user_id, time=user_to_add.last_time_quiz))
 
             return returned_list
         else:

@@ -5,7 +5,7 @@ from app.config import settings
 from app.schemas.company_schemas import *
 import http.client
 from datetime import timedelta
-from app.schemas import company_schemas, user_of_company_schemas, quiz_workflow_schemas
+from app.schemas import analitics_schemas
 from app.cruds.company_crud import crud as company_crud
 from app.cruds.quiz_crud import crud as quiz_crud
 from app.cruds.quiz_workflow_crud import crud as quiz_workflow_crud
@@ -13,17 +13,12 @@ from app.cruds.crud import crud as user_crud
 
 router = APIRouter()
 
-@router.post("/get-all-user-result/", tags=["analytics"])
-async def get_all_user_results(company_id: int, email: str = Depends(get_email_from_token)):
-    owner = await user_crud.get_user_by_email(email)
-    company = await company_crud.get_company_by_id(company_id)
-    check_is_admin = await company_crud.check_is_admin(company_id=company_id, user_id=owner.id)
-    if company.owner_id == owner.id or check_is_admin == True:
-        return await quiz_crud.show_all_result_by_user(company_id)
-    else:
-        raise HTTPException(status_code=400, detail="No permission")
+@router.post("/get-all-user-result/", tags=["analytics"], response_model=list[analitics_schemas.UserResult])
+async def get_all_user_results(user_id: int):
+        return await quiz_crud.show_result_of_user(user_id)
 
-@router.post("/get-results-by-company-and-user/", tags=["analytics"])
+
+@router.post("/get-results-by-company-and-user/", tags=["analytics"], response_model=list[analitics_schemas.UserResult])
 async def get_by_company_and_users(company_id: int, user_id: int, email: str = Depends(get_email_from_token)):
     owner = await user_crud.get_user_by_email(email)
     company = await company_crud.get_company_by_id(company_id)
@@ -33,7 +28,7 @@ async def get_by_company_and_users(company_id: int, user_id: int, email: str = D
     else:
         raise HTTPException(status_code=400, detail="No permission")
 
-@router.post("/get-list-user-of-company-and-last_time/", tags=["analytics"])
+@router.post("/get-list-user-of-company-and-last_time/", tags=["analytics"], response_model=list[analitics_schemas.ListUsersOfCompanyAndLastTime])
 async def get_by_company_and_users(company_id: int, email: str = Depends(get_email_from_token)):
     owner = await user_crud.get_user_by_email(email)
     company = await company_crud.get_company_by_id(company_id)
