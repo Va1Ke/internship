@@ -100,5 +100,63 @@ class Quiz_crud:
         else:
             raise HTTPException(status_code=400, detail="No such quiz")
 
+    async def show_all_result_by_company(self, company_id: int):
+        query = quiz_workflows.select().where(quiz_workflows.c.company_id == company_id)
+        list = await db.fetch_all(query=query)
+        if list:
+            sorted_list = sorted(list, key=itemgetter('time'))
+            k = 0
+            avg_all = 0.0
+            returned_list = []
+            for item in sorted_list:
+                user = quiz_workflow_schemas.QuizWorkFlowReturn(**item)
+                avg_all = avg_all + user.result
+                k = k+1
+                avg = avg_all / k
+                dict = {avg: user.time}
+                returned_list.append(dict)
+
+            return returned_list
+        else:
+            raise HTTPException(status_code=400, detail="No such quiz")
+
+    async def show_all_result_by_company_and_user(self, company_id: int, user_id: int):
+        query = quiz_workflows.select().where(and_(quiz_workflows.c.company_id == company_id, quiz_workflows.c.user_id == user_id))
+        list = await db.fetch_all(query=query)
+        if list:
+            sorted_list = sorted(list, key=itemgetter('time'))
+            k = 0
+            avg_all = 0.0
+            returned_list = []
+            for item in sorted_list:
+                user = quiz_workflow_schemas.QuizWorkFlowReturn(**item)
+                avg_all = avg_all + user.result
+                k = k+1
+                avg = avg_all / k
+                dict = {avg: user.time}
+                returned_list.append(dict)
+
+            return returned_list
+        else:
+            raise HTTPException(status_code=400, detail="No such quiz")
+
+    async def list_user_of_company_and_last_time(self, company_id: int):
+        query = quiz_workflows.select().where(quiz_workflows.c.company_id == company_id)
+        list = await db.fetch_all(query=query)
+        if list:
+            sorted_list = sorted(list, key=itemgetter('time'))
+            returned_list = []
+            for items in sorted_list:
+                item = quiz_workflow_schemas.QuizWorkFlowReturn(**items)
+                query = users_of_companys.select().where(users_of_companys.c.user_id == item.user_id)
+                user = await db.fetch_one(query=query)
+                user_to_add = user_of_company_schemas.UserOfCompanyReturnAvgAll(**user)
+
+                dict = {user_to_add.user_id: user_to_add.last_time_quiz}
+                returned_list.append(dict)
+
+            return returned_list
+        else:
+            raise HTTPException(status_code=400, detail="No such quiz")
 
 crud = Quiz_crud()

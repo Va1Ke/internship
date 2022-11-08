@@ -12,3 +12,5 @@ class UserOfCompanyReturnAvgAll(BaseModel):
     company_id: int
     is_admin: bool
     user_id: int
+    avg_result: float
+    last_time_quiz: datetime.datetime
