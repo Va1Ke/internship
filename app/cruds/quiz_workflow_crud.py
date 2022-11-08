@@ -11,9 +11,7 @@ class QuizWorkFlow_crud:
     async def show_quiz_questions(self, quiz_id: int) -> list[quiz_workflow_schemas.QuizWorkFlowQuestionsReturn]:
         query = quiz_questions.select().where(quiz_questions.c.quiz_id == quiz_id)
         list = await db.fetch_all(query=query)
-        if list == None:
-            return None
-        return [quiz_workflow_schemas.QuizWorkFlowQuestionsReturn(**request) for request in list]
+        return [quiz_workflow_schemas.QuizWorkFlowQuestionsReturn(**request) for request in list] if list else None
 
     async def update_quiz_avg(self, quiz_id: int) -> quiz_schemas.QuizReturn:
         rights = 0
