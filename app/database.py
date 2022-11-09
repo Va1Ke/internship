@@ -9,6 +9,7 @@ from app.config import settings
 
 SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
 db = databases.Database(settings.DATABASE_URL)
+test_db = databases.Database(settings.TEST_DATABASE_URL)
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 Base = declarative_base()
 
