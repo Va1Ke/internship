@@ -12,13 +12,13 @@ from app.database import db
 
 router = APIRouter()
 
-@router.post("/get-my-result-redis/", tags=["download_csv"], response_model=FileResponse)
+@router.post("/get-my-result-redis/", tags=["download_csv"])
 async def get_my_result_redis(email: str = Depends(get_email_from_token)):
     owner = await user_crud.get_user_by_email(email,db=db)
     await quiz_workflow_crud.export_user_results_redis_to_csv(user_id=owner.id,db=db)
     return FileResponse("export_user_results_redis_to_csv.csv")
 
-@router.post("/get-user-result-by-company-redis/", tags=["download_csv"], response_model=FileResponse)
+@router.post("/get-user-result-by-company-redis/", tags=["download_csv"])
 async def get_user_result_by_company_redis(user_id: int, company_id: int, email: str = Depends(get_email_from_token)):
     owner = await user_crud.get_user_by_email(email,db=db)
     check_is_admin = await company_crud.check_is_admin(company_id=company_id, user_id=owner.id,db=db)
@@ -29,7 +29,7 @@ async def get_user_result_by_company_redis(user_id: int, company_id: int, email:
     else:
         raise HTTPException(status_code=400, detail="No permission")
 
-@router.post("/get-company-result-redis/", tags=["download_csv"], response_model=FileResponse)
+@router.post("/get-company-result-redis/", tags=["download_csv"])
 async def get_company_result_redis(company_id: int, email: str = Depends(get_email_from_token)):
     owner = await user_crud.get_user_by_email(email,db=db)
     check_is_admin = await company_crud.check_is_admin(company_id=company_id, user_id=owner.id,db=db)
