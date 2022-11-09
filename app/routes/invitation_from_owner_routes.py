@@ -8,41 +8,42 @@ from datetime import timedelta
 from app.cruds.company_crud import crud as company_crud
 from app.cruds.crud import crud as user_crud
 from app.cruds.invitation_from_owner_crud import crud as from_owner_crud
+from app.database import db
 
 router = APIRouter()
 
 @router.post("/invitation/", tags=["Invitation from owner"], response_model=InvitationReturnFromCreation)
 async def create(invitation: InvitationAdd, email: str = Depends(get_email_from_token)):
-    owner = await user_crud.get_user_by_email(email)
-    company = await company_crud.get_company_by_id(invitation.company_id)
+    owner = await user_crud.get_user_by_email(email,db=db)
+    company = await company_crud.get_company_by_id(invitation.company_id,db=db)
     if company.owner_id == owner.id:
-        return await from_owner_crud.create_invitation(invitation)
+        return await from_owner_crud.create_invitation(invitation,db=db)
     else:
         raise HTTPException(status_code=400,detail="No permission")
 
 
 @router.get("/check-my-invitation/", tags=["Invitation from owner"], response_model=list[InvitationReturnFromCreation])
 async def check(email: str = Depends(get_email_from_token)):
-    invited = await user_crud.get_user_by_email(email)
-    return await from_owner_crud.get_invitation_by_invented_id(invited.id)
+    invited = await user_crud.get_user_by_email(email,db=db)
+    return await from_owner_crud.get_invitation_by_invented_id(invited.id,db=db)
 
 
 @router.post("/accept/", tags=["Invitation from owner"], response_model=UserCompanyReturn)
 async def accept(invitation_id: int, email: str = Depends(get_email_from_token)):
-    invited = await user_crud.get_user_by_email(email)
-    invitation = await from_owner_crud.get_invitation_by_id(invitation_id)
+    invited = await user_crud.get_user_by_email(email,db=db)
+    invitation = await from_owner_crud.get_invitation_by_id(invitation_id,db=db)
     if invited.id == invitation.invited_user_id:
-        return await from_owner_crud.accept_invitation(invitation_id=invitation_id, company_id=invitation.company_id, user_id=invitation.invited_user_id)
+        return await from_owner_crud.accept_invitation(invitation_id=invitation_id, company_id=invitation.company_id, user_id=invitation.invited_user_id,db=db)
     else:
         raise HTTPException(status_code=400,detail="No permission")
 
 
 @router.delete("/decline/", tags=["Invitation from owner"])
 async def decline(invitation_id: int, email: str = Depends(get_email_from_token)):
-    invited = await user_crud.get_user_by_email(email)
-    invitation = await from_owner_crud.get_invitation_by_id(invitation_id)
+    invited = await user_crud.get_user_by_email(email,db=db)
+    invitation = await from_owner_crud.get_invitation_by_id(invitation_id,db=db)
     if invited.id == invitation.invited_user_id:
-        return await from_owner_crud.decline_invitation(invitation_id)
+        return await from_owner_crud.decline_invitation(invitation_id,db=db)
     else:
         raise HTTPException(status_code=400,detail="No permission")
 

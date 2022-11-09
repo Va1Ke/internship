@@ -6,7 +6,7 @@ from app.config import settings
 from app.schemas import quiz_schemas, user_of_company_schemas, quiz_workflow_schemas
 from app.models.models import companies, quizzes, quiz_questions, quiz_workflows, quiz_answers, users_of_companys
 from app.cruds.quiz_crud import crud as quiz_crud
-from app.database import db
+import databases
 import asyncio
 import aioredis
 import csv
@@ -15,12 +15,12 @@ import json
 
 class QuizWorkFlow_crud:
 
-    async def show_quiz_questions(self, quiz_id: int) -> list[quiz_workflow_schemas.QuizWorkFlowQuestionsReturn]:
+    async def show_quiz_questions(self, quiz_id: int, db: databases.Database) -> list[quiz_workflow_schemas.QuizWorkFlowQuestionsReturn]:
         query = quiz_questions.select().where(quiz_questions.c.quiz_id == quiz_id)
         list = await db.fetch_all(query=query)
         return [quiz_workflow_schemas.QuizWorkFlowQuestionsReturn(**request) for request in list] if list else None
 
-    async def update_quiz_avg(self, quiz_id: int) -> quiz_schemas.QuizReturn:
+    async def update_quiz_avg(self, quiz_id: int, db: databases.Database) -> quiz_schemas.QuizReturn:
         rights = 0
         questions = 0
         query = quiz_workflows.select().where(quiz_workflows.c.quiz_id == quiz_id)
@@ -40,7 +40,7 @@ class QuizWorkFlow_crud:
         quiz = await db.fetch_one(query=query)
         return quiz_schemas.QuizReturn(**quiz)
 
-    async def update_user_of_company(self, company_id: int, user_id: int) -> user_of_company_schemas.UserOfCompanyReturn:
+    async def update_user_of_company(self, company_id: int, user_id: int, db: databases.Database) -> user_of_company_schemas.UserOfCompanyReturn:
         rights = 0
         questions = 0
         last_time = datetime.now() - timedelta(days=1000)
@@ -63,7 +63,7 @@ class QuizWorkFlow_crud:
 
         return user_of_company_schemas.UserOfCompanyReturn(id=record_id, company_id=company_id, user_id=user_id, is_admin=True, avg_result=avg_result, time=last_time)
 
-    async def enter_questions_answers(self, answers: quiz_workflow_schemas.QuizWorkFlowEntering, user_id: int, quiz_id: int, company_id: int) -> quiz_workflow_schemas.QuizWorkFlowReturn:
+    async def enter_questions_answers(self, answers: quiz_workflow_schemas.QuizWorkFlowEntering, user_id: int, quiz_id: int, company_id: int, db: databases.Database) -> quiz_workflow_schemas.QuizWorkFlowReturn:
         k = 0
         right = 0
         redis = await aioredis.from_url(settings.REDIS_URL)
