@@ -13,6 +13,7 @@ class Settings:
     POSTGRES_DB: str = os.getenv("POSTGRES_DB")
     DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
     #DATABASE_URL = "postgresql://admin:admin@localhost:5432/postgresdb"
+    REDIS_URL = f"redis://cache:6379/"
     DOMAIN: str = os.getenv("DOMAIN")
     API_AUDIENCE: str = os.getenv("API_AUDIENCE")
     SECRET: str = os.getenv("SECRET")

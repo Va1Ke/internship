@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime, Text, Boolean, ForeignKey
+from sqlalchemy import Column, String, Integer, DateTime, Text, Boolean, ForeignKey, Float
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -20,6 +20,8 @@ class UserOfCompany(Base):
     id = Column(Integer, primary_key=True, index=True,unique=True)
     company_id = Column(Integer, ForeignKey("companies.id"))
     is_admin = Column(Boolean)
+    avg_result = Column(Float)
+    last_time_quiz = Column(DateTime)
     user_id = Column(Integer, ForeignKey("users.id"))
 
 users_of_companys = UserOfCompany.__table__
@@ -60,6 +62,7 @@ class Quiz(Base):
     name = Column(String)
     frequency_of_passage = Column(Integer)
     description = Column(String)
+    avg_result = Column(Integer, default=0)
     company_id = Column(Integer, ForeignKey("companies.id"))
     questions = relationship('QuizQuestion', backref='quiz_question')
 
@@ -81,3 +84,17 @@ class QuizAnswer(Base):
     question_id = Column(Integer, ForeignKey("quiz_questions.id"))
 
 quiz_answers = QuizAnswer.__table__
+
+class QuizWorkFlow(Base):
+    __tablename__ = "quiz_workflows"
+    id = Column(Integer, primary_key=True, index=True,unique=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    company_id = Column(Integer, ForeignKey("companies.id"))
+    quiz_id = Column(Integer, ForeignKey("quizzes.id"))
+    result = Column(Float)
+    right_answers = Column(Integer)
+    count_of_questions = Column(Integer)
+    time = Column(DateTime)
+
+
+quiz_workflows = QuizWorkFlow.__table__

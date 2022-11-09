@@ -34,3 +34,11 @@ class UserList(UserBase):
     name: str
     users: list[User]
     creation_date: datetime.datetime
+
+class UserAvgAll(UserBase):
+    id: int
+    name: str
+    password: str
+    avg_quiz_result: float
+    last_time_quiz: datetime.datetime
+    creation_date: datetime.datetime = datetime.datetime.now()

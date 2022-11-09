@@ -18,7 +18,7 @@ async def create(company: Company, email: str = Depends(get_email_from_token)):
     return await company_crud.create_company(company=company, owner_id=owner.id)
 
 @router.post("/add-to-admins/", tags=["company"], response_model=user_of_company_schemas.UserOfCompanyReturn)
-async def create(company_id: int, user_id: int, email: str = Depends(get_email_from_token)):
+async def add_admins(company_id: int, user_id: int, email: str = Depends(get_email_from_token)):
     owner = await user_crud.get_user_by_email(email)
     company = await company_crud.get_company_by_id(company_id)
     if company.owner_id == owner.id:
@@ -26,8 +26,9 @@ async def create(company_id: int, user_id: int, email: str = Depends(get_email_f
     else:
         raise HTTPException(status_code=400, detail="No permission")
 
+
 @router.post("/show-requests-from-users/", tags=["company"], response_model=list[requst_from_user_schemas.UserRequestReturn])
-async def create(company_id: int, email: str = Depends(get_email_from_token)):
+async def show_requests_from_users(company_id: int, email: str = Depends(get_email_from_token)):
     owner = await user_crud.get_user_by_email(email)
     company = await company_crud.get_company_by_id(company_id)
     if company.owner_id == owner.id:
