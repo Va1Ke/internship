@@ -18,7 +18,7 @@ async def get_quiz_questions(quiz_id: int, email: str = Depends(get_email_from_t
     owner = await user_crud.get_user_by_email(email)
     quiz = await quiz_crud.get_quiz_by_id(quiz_id)
     company = await company_crud.get_company_by_id(quiz.company_id)
-    is_user_in_company = await company_crud.check_is_user_in_company(company_id=company.id,user_id=owner.id)
+    is_user_in_company = await company_crud.check_is_user_in_company(company_id=company.id, user_id=owner.id)
     if is_user_in_company == True:
         return await quiz_workflow_crud.show_quiz_questions(quiz_id=quiz_id)
     else:

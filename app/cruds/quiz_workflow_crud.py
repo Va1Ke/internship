@@ -27,10 +27,11 @@ class QuizWorkFlow_crud:
 
         query = (quizzes.update().where(quizzes.c.id == quiz_id).values(
             avg_result=avg_result
-        ).returning(users_of_companys))
-        quiz = await db.execute(query=query)
-
-        return quiz_schemas.QuizReturn(quiz)
+        ).returning(quizzes.c.id))
+        quiz_id = await db.execute(query=query)
+        query = quizzes.select().where(quizzes.c.id == quiz_id)
+        quiz = await db.fetch_one(query=query)
+        return quiz_schemas.QuizReturn(**quiz)
 
     async def update_user_of_company(self, company_id: int, user_id: int) -> user_of_company_schemas.UserOfCompanyReturn:
         rights = 0

@@ -10,9 +10,9 @@ from app.database import db
 class Quiz_crud:
 
     async def create_quiz(self, quiz: quiz_schemas.QuizEntry) -> quiz_schemas.QuizReturn:
-        db_company = quizzes.insert().values(company_id=quiz.company_id, name=quiz.name, description=quiz.description)
+        db_company = quizzes.insert().values(company_id=quiz.company_id, name=quiz.name, description=quiz.description, frequency_of_passage=7)
         record_id = await db.execute(db_company)
-        return quiz_schemas.QuizReturn(**quiz.dict(), id=record_id)
+        return quiz_schemas.QuizReturn(**quiz.dict(), id=record_id , frequency_of_passage=7, avg_result=0)
 
     async def get_quiz_by_id(self, id: int) -> quiz_schemas.QuizReturn:
         quiz = await db.fetch_one(quizzes.select().where(quizzes.c.id == id))

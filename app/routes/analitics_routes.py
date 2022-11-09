@@ -38,7 +38,7 @@ async def get_by_company_and_users(company_id: int, email: str = Depends(get_ema
     else:
         raise HTTPException(status_code=400, detail="No permission")
 
-@router.post("/get-user-result/", tags=["analytics"], response_model=list[analitics_schemas.UserResult])
+@router.post("/get-users-result-by-company/", tags=["analytics"], response_model=list[analitics_schemas.UserResult])
 async def get_user_result(company_id: int) -> list[analitics_schemas.UserResult]:
     return await quiz_crud.show_all_result_by_company(company_id=company_id)
 
