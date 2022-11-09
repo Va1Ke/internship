@@ -16,9 +16,7 @@ class Quiz_crud:
 
     async def get_quiz_by_id(self, id: int) -> quiz_schemas.QuizReturn:
         quiz = await db.fetch_one(quizzes.select().where(quizzes.c.id == id))
-        if quiz == None:
-            return None
-        return quiz_schemas.QuizReturn(**quiz)
+        return quiz_schemas.QuizReturn(**quiz) if quiz else None
 
     async def update_quiz(self, quiz: quiz_schemas.QuizUpdateEntry) -> quiz_schemas.QuizReturn:
         query = (quizzes.update().where(quizzes.c.id == quiz.id).values(
@@ -39,9 +37,7 @@ class Quiz_crud:
     async def show_quizzes_in_company(self, company_id: int) -> list[quiz_schemas.QuizReturn]:
         query = quizzes.select().where(quizzes.c.company_id == company_id)
         list = await db.fetch_all(query=query)
-        if list == None:
-            return None
-        return [quiz_schemas.QuizReturn(**request) for request in list]
+        return [quiz_schemas.QuizReturn(**request) for request in list] if list else None
 
     async def show_result_of_user(self, user_id: int) -> list[analitics_schemas.UserResult]:
         query = quiz_workflows.select().where(quiz_workflows.c.user_id == user_id)
@@ -95,7 +91,7 @@ class Quiz_crud:
         else:
             raise HTTPException(status_code=400, detail="No such quiz")
 
-    async def show_all_result_by_company(self, company_id: int) -> list[dict]:
+    async def show_all_result_by_company(self, company_id: int) -> list[analitics_schemas.UserResult]:
         query = quiz_workflows.select().where(quiz_workflows.c.company_id == company_id)
         list = await db.fetch_all(query=query)
         if list:
