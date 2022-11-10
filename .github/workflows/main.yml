@@ -19,6 +19,9 @@ jobs:
     - name: Git clone my repo
       uses: actions/checkout@v1
     
+    - name: Build the Docker image
+      run: docker build -t ga63qes/fast-api-classifier -f Dockerfile .
+    
     - name: Create ZIP deployment package
       run : zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x *.git*
       
