@@ -19,27 +19,25 @@ jobs:
     - name: Git clone my repos
       uses: actions/checkout@v1
     
-    - name: Print Success for CI
-      run: echo { ALGORITHMS } >> .env
-      run: echo { API_AUDIENCE } >> .env
-      run: echo { APPPORT } >> .env
-      run: echo { APPHOST } >> .env
-      run: echo { CLIENT_ID } >> .env
-      run: echo { CLIENT_SECRET } >> .env
-      run: echo { CONNECTION } >> .env
-      run: echo { DOMAIN } >> .env
-      run: echo { ISSUER } >> .env
-      run: echo { MY_ALGORITHMS } >> .env
-      run: echo { POSTGRES_DB } >> .env
-      run: echo { POSTGRES_HOST } >> .env
-      run: echo { POSTGRES_PASSWORD } >> .env
-      run: echo { POSTGRES_PORT } >> .env
-      run: echo { POSTGRES_TEST_DB } >> .env
-      run: echo { POSTGRES_USER } >> .env
-      run: echo { SECRET } >> .env
-      
-    - name: Build the Docker image
-      run: docker build -t ga63qes/fast-api-classifier -f Dockerfile .
+    - name: EnvData to .env
+      run: |
+        echo ${{ secrets.ALGORITHMS }} >> .env 
+        echo ${{ secrets.API_AUDIENCE }} >> .env 
+        echo ${{ secrets.APPHOST }} >> .env
+        echo ${{ secrets.APPPORT }} >> .env
+        echo ${{ secrets.CLIENT_ID }} >> .env
+        echo ${{ secrets.CLIENT_SECRET }} >> .env
+        echo ${{ secrets.CONNECTION }} >> .env
+        echo ${{ secrets.DOMAIN }} >> .env
+        echo ${{ secrets.ISSUER }} >> .env
+        echo ${{ secrets.MY_ALGORITHMS }} >> .env
+        echo ${{ secrets.POSTGRES_DB }} >> .env
+        echo ${{ secrets.POSTGRES_HOST }} >> .env
+        echo ${{ secrets.POSTGRES_PASSWORD }} >> .env
+        echo ${{ secrets.POSTGRES_PORT }} >> .env
+        echo ${{ secrets.POSTGRES_TEST_DB }} >> .env
+        echo ${{ secrets.POSTGRES_USER }} >> .env
+        echo ${{ secrets.SECRET }} >> .env
     
     - name: Create ZIP deployment package
       run : zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x *.git*
