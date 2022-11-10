@@ -13,7 +13,7 @@ def create_drop_all():
 
 
 @pytest.mark.anyio
-async def test_root():
+async def test_root(create_drop_all):
     async with AsyncClient(app=app, base_url="http://127.0.0.1/users/") as ac:
         response = await ac.get("/users/")
     assert response.status_code == 200
