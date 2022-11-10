@@ -19,7 +19,7 @@ jobs:
     - name: Git clone my repos
       uses: actions/checkout@v1
     
-    - name: EnvData to .env
+    - name: Saving EnvData to .env
       run: |
         echo "ALGORITHMS=${{ secrets.ALGORITHMS }}" >> .env 
         echo "API_AUDIENCE=${{ secrets.API_AUDIENCE }}" >> .env 
