@@ -9,7 +9,7 @@ env:
 on: 
   push:
     branches:
-      - main
+      - BE-13
 
 jobs:
   my_ci_part: 
