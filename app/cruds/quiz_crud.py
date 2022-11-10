@@ -2,20 +2,22 @@ from fastapi import HTTPException
 from datetime import datetime, date
 from sqlalchemy import and_
 from operator import itemgetter
-from app.cruds.quiz_questions_crud import crud as quiz_questions_crud
+from app.cruds.quiz_questions_crud import QuizQuestions_crud
 from app.schemas import quiz_schemas, user_of_company_schemas, schemas, quiz_workflow_schemas, analitics_schemas
 from app.models.models import companies, users_of_companys, quizzes, users, quiz_workflows
-from app.database import db
+import databases
 
 class Quiz_crud:
+    def __init__(self, db: databases.Database):
+        self.db = db
 
     async def create_quiz(self, quiz: quiz_schemas.QuizEntry) -> quiz_schemas.QuizReturn:
         db_company = quizzes.insert().values(company_id=quiz.company_id, name=quiz.name, description=quiz.description, frequency_of_passage=7)
-        record_id = await db.execute(db_company)
+        record_id = await self.db.execute(db_company)
         return quiz_schemas.QuizReturn(**quiz.dict(), id=record_id , frequency_of_passage=7, avg_result=0)
 
     async def get_quiz_by_id(self, id: int) -> quiz_schemas.QuizReturn:
-        quiz = await db.fetch_one(quizzes.select().where(quizzes.c.id == id))
+        quiz = await self.db.fetch_one(quizzes.select().where(quizzes.c.id == id))
         return quiz_schemas.QuizReturn(**quiz) if quiz else None
 
     async def update_quiz(self, quiz: quiz_schemas.QuizUpdateEntry) -> quiz_schemas.QuizReturn:
@@ -24,24 +26,24 @@ class Quiz_crud:
             description=quiz.description,
 
         ).returning(companies.c.company_id))
-        company_id = await db.execute(query=query)
+        company_id = await self.db.execute(query=query)
         return quiz_schemas.QuizReturn(**quiz.dict(), company_id=company_id)
 
     async def delete_quiz(self, quiz_id: int) -> HTTPException:
-        await quiz_questions_crud.delete_question_for_quiz_crud(quiz_id)
+        await QuizQuestions_crud(db=db).delete_question_for_Quiz_crud(quiz_id)
 
         query = quizzes.delete().where(quizzes.c.id == quiz_id)
-        await db.execute(query=query)
+        await self.db.execute(query=query)
         return HTTPException(status_code=200, detail="Success")
 
     async def show_quizzes_in_company(self, company_id: int) -> list[quiz_schemas.QuizReturn]:
         query = quizzes.select().where(quizzes.c.company_id == company_id)
-        list = await db.fetch_all(query=query)
+        list = await self.db.fetch_all(query=query)
         return [quiz_schemas.QuizReturn(**request) for request in list] if list else None
 
     async def show_result_of_user(self, user_id: int) -> list[analitics_schemas.UserResult]:
         query = quiz_workflows.select().where(quiz_workflows.c.user_id == user_id)
-        list = await db.fetch_all(query=query)
+        list = await self.db.fetch_all(query=query)
         if list:
             sorted_list = sorted(list, key=itemgetter('time'))
             k = 0
@@ -59,7 +61,7 @@ class Quiz_crud:
 
     async def show_quiz_result_by_user(self, quiz_id: int, user_id: int) -> list[analitics_schemas.UserResult]:
         query = quiz_workflows.select().where(and_(quiz_workflows.c.quiz_id == quiz_id, quiz_workflows.c.user_id == user_id))
-        list = await db.fetch_all(query=query)
+        list = await self.db.fetch_all(query=query)
         if list:
             sorted_list = sorted(list, key=itemgetter('time'))
             k = 0
@@ -78,7 +80,7 @@ class Quiz_crud:
 
     async def show_user_quiz_list(self, user_id: int) -> list[analitics_schemas.UserQuizList]:
         query = quiz_workflows.select().where(quiz_workflows.c.user_id == user_id)
-        list = await db.fetch_all(query=query)
+        list = await self.db.fetch_all(query=query)
         if list:
             sorted_list = sorted(list, key=itemgetter('time'))
 
@@ -93,7 +95,7 @@ class Quiz_crud:
 
     async def show_all_result_by_company(self, company_id: int) -> list[analitics_schemas.UserResult]:
         query = quiz_workflows.select().where(quiz_workflows.c.company_id == company_id)
-        list = await db.fetch_all(query=query)
+        list = await self.db.fetch_all(query=query)
         if list:
             sorted_list = sorted(list, key=itemgetter('time'))
             k = 0
@@ -112,7 +114,7 @@ class Quiz_crud:
 
     async def show_all_result_by_company_and_user(self, company_id: int, user_id: int) -> list[analitics_schemas.UserResult]:
         query = quiz_workflows.select().where(and_(quiz_workflows.c.company_id == company_id, quiz_workflows.c.user_id == user_id))
-        list = await db.fetch_all(query=query)
+        list = await self.db.fetch_all(query=query)
         if list:
             sorted_list = sorted(list, key=itemgetter('time'))
             k = 0
@@ -131,14 +133,14 @@ class Quiz_crud:
 
     async def list_user_of_company_and_last_time(self, company_id: int) -> list[analitics_schemas.ListUsersOfCompanyAndLastTime]:
         query = quiz_workflows.select().where(quiz_workflows.c.company_id == company_id)
-        list = await db.fetch_all(query=query)
+        list = await self.db.fetch_all(query=query)
         if list:
             sorted_list = sorted(list, key=itemgetter('time'))
             returned_list = []
             for items in sorted_list:
                 item = quiz_workflow_schemas.QuizWorkFlowReturn(**items)
                 query = users_of_companys.select().where(users_of_companys.c.user_id == item.user_id)
-                user = await db.fetch_one(query=query)
+                user = await self.db.fetch_one(query=query)
                 user_to_add = user_of_company_schemas.UserOfCompanyReturnAvgAll(**user)
                 returned_list.append(analitics_schemas.ListUsersOfCompanyAndLastTime(user_id=user_to_add.user_id, time=user_to_add.last_time_quiz))
 
@@ -146,4 +148,4 @@ class Quiz_crud:
         else:
             raise HTTPException(status_code=400, detail="No such quiz")
 
-crud = Quiz_crud()
+#crud = Quiz_crud()

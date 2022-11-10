@@ -5,45 +5,46 @@ from app.config import settings
 from app.schemas.schemas import *
 import http.client
 from datetime import timedelta
-from app.cruds.crud import crud
+from app.cruds.crud import Cruds
+from app.database import db, test_db
 
 router = APIRouter()
 
 @router.post("/users/",response_model=User)
 async def create_user(user: SignUpUser):
-    db_user = await crud.get_user_by_email(email=user.email)
+    db_user = await Cruds(db=db).get_user_by_email(email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    return await crud.create_user(user=user)
+    return await Cruds(db=db).create_user(user=user)
 
 @router.put("/update-user/",response_model=User)
 async def update_user(user: UserUpdate, email: str = Depends(get_email_from_token)):
     if user.email == email:
-        return await crud.update_user(user=user)
+        return await Cruds(db=db).update_user(user=user)
     else:
         raise HTTPException(status_code=400, detail="No such user or you have no permissions to do that")
 
 @router.get("/users/", response_model=list[User])
 async def read_users(skip: int = 0, limit: int = 100):
-    return await crud.get_users(skip=skip, limit=limit)
+    return await Cruds(db=db).get_users(skip=skip, limit=limit)
 
 @router.delete("/delete-user/")
 async def delete_user(user: UserBase, email: str = Depends(get_email_from_token)):
     if user.email == email:
-        return await crud.delete_user(user=user)
+        return await Cruds(db=db).delete_user(user=user)
     else:
         raise HTTPException(status_code=400, detail="No such user or you have no permissions to do that")
 
 @router.get("/users/{user_id}", response_model=User)
 async def read_user(user_id: int):
-    db_user = await crud.get_user_by_id(id=user_id)
+    db_user = await Cruds(db=db).get_user_by_id(id=user_id)
     if db_user is None:
         raise HTTPException(status_code=400, detail="No such user")
     return db_user
 
 @router.get("/users/email/{user_email}", response_model=User)
 async def read_user_by_email(user_email: str):
-    db_user = await crud.get_user_by_email(email=user_email)
+    db_user = await Cruds(db=db).get_user_by_email(email=user_email)
     if db_user is None:
         raise HTTPException(status_code=400, detail="No such user")
     return db_user
@@ -56,7 +57,7 @@ def get_me(user: User = Depends(get_current_user)):
 
 @router.post("/user/login/", tags=["auth"])
 async def sign_in_my(user: SignInUser):
-    user_check = await crud.get_user_by_email(user.email)
+    user_check = await Cruds(db=db).get_user_by_email(user.email)
     if user_check and user_check.password == user.password:
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         token = await create_access_token(user.email,expires_delta=access_token_expires)
@@ -66,7 +67,7 @@ async def sign_in_my(user: SignInUser):
 
 @router.post("/user/register/", tags=["auth"])
 async def sign_up_my(user: SignUpUser):
-    does_exist = await crud.get_user_by_email(email=user.email)
+    does_exist = await Cruds(db=db).get_user_by_email(email=user.email)
     if does_exist:
         raise HTTPException(status_code=400,detail="Email already registered")
     config = set_up()
@@ -84,9 +85,9 @@ async def sign_up_my(user: SignUpUser):
     conn.request("POST", "/dbconnections/signup", pyload, headers)
     conn.getresponse()
 
-    user = await crud.create_user(user)
+    user = await Cruds(db=db).create_user(user)
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    token = await create_access_token(user.email,expires_delta=access_token_expires)
+    token = await create_access_token(user.email, expires_delta=access_token_expires)
     return token
 
 

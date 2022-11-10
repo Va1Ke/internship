@@ -3,10 +3,13 @@ import jwt
 from fastapi import Response, Depends, HTTPException
 from fastapi.security import HTTPBearer
 from starlette import status
-from app.cruds.crud import crud
+from app.cruds.crud import Cruds
 from app.config import settings
+from app.database import db, test_db
 
 token_auth_scheme = HTTPBearer()
+
+
 
 async def create_access_token(email: str, expires_delta: timedelta = None) -> str:
     if expires_delta:
@@ -28,14 +31,14 @@ async def get_current_user(response: Response, token: str = Depends(token_auth_s
             response.status_code = status.HTTP_400_BAD_REQUEST
             return response
 
-        user = await crud.get_user_by_email(pyload_from_me.get("email"))
+        user = await Cruds(db=db).get_user_by_email(pyload_from_me.get("email"))
         if not user:
             raise HTTPException(status_code=404,detail="User not found")
         return user
 
-    user = await crud.get_user_by_email(email=pyload_from_auth.get("email"))
+    user = await Cruds(db=db).get_user_by_email(email=pyload_from_auth.get("email"))
     if not user:
-        user = await crud.create_user_by_email(email=pyload_from_auth.get("email"))
+        user = await Cruds(db=db).create_user_by_email(email=pyload_from_auth.get("email"))
     return user
 
 async def get_email_from_token(response: Response, token: str = Depends(token_auth_scheme)):
