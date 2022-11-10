@@ -1,8 +1,8 @@
 name: CI-CD-Pipeline-to-AWS-ElasticBeastalk
 env:
   EB_S3_BUCKET_NAME   : "my-fast-api-bucket"
-  EB_APPLICATION_NAME : "Myfastapi"
-  EB_ENVIRONMENT_NAME : "Myfastapi-env"
+  EB_APPLICATION_NAME : "Myfastapi2"
+  EB_ENVIRONMENT_NAME : "Myfastapi2-env"
   DEPLOY_PACKAGE_NAME : "fastapi_app_${{ github.sha }}.zip"
   AWS_REGION_NAME     : "eu-central-1"
   
