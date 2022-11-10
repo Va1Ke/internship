@@ -1,0 +1,83 @@
+name: CI-CD-Pipeline-to-AWS-ElasticBeastalk
+env:
+  EB_S3_BUCKET_NAME   : "my-fast-api-bucket"
+  EB_APPLICATION_NAME : "Myfastapi2"
+  EB_ENVIRONMENT_NAME : "Myfastapi2-env"
+  DEPLOY_PACKAGE_NAME : "fastapi_app_${{ github.sha }}.zip"
+  AWS_REGION_NAME     : "eu-central-1"
+  
+on:
+  push:
+    branches: [ BE-13 ]
+  pull_request:
+    branches: [ BE-13 ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        lfs: 'true'
+    - 
+      name: Build the Docker image
+      run: docker build -t ga63qes/flask-birds-classifier -f Dockerfile .
+      
+    - name: EnvDatadawd to .env
+      run: |
+        echo "ALGORITHMS=${{ secrets.ALGORITHMS }}" >> .env 
+        echo "API_AUDIENCE=${{ secrets.API_AUDIENCE }}" >> .env 
+        echo "APPHOST=${{ secrets.APPHOST }}" >> .env
+        echo "APPPORT=${{ secrets.APPPORT }}" >> .env
+        echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
+        echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
+        echo "CONNECTION=${{ secrets.CONNECTION }}" >> .env
+        echo "DOMAIN=${{ secrets.DOMAIN }}" >> .env
+        echo "ISSUER=${{ secrets.ISSUER }}" >> .env
+        echo "MY_ALGORITHMS=${{ secrets.MY_ALGORITHMS }}" >> .env
+        echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+        echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> .env
+        echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+        echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env
+        echo "POSTGRES_TEST_DB=${{ secrets.POSTGRES_TEST_DB }}" >> .env
+        echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+        echo "SECRET=${{ secrets.SECRET }}" >> .env
+        cat .env
+    -
+      name: Generate Deployment Package
+      run: zip -r deploy.zip *
+    -
+      name: Get timestamp
+      uses: gerred/actions/current-time@master
+      id: current-time
+        
+    - name: Run string replace
+      uses: frabert/replace-string-action@master
+      id: format-time
+      with:
+        pattern: '[:\.]+'
+        string: "${{ steps.current-time.outputs.time }}"
+        replace-with: '-'
+        flags: 'g'
+
+    - name: Deploy to EB
+      uses: einaregilsson/beanstalk-deploy@v14
+      with:
+        aws_access_key: ${{ secrets.MY_AWS_ACCESS_KEY }}
+        aws_secret_key: ${{ secrets.MY_AWS_SECRET_KEY }}
+        application_name: ${{ env.EB_APPLICATION_NAME }}
+        environment_name: ${{ env.EB_ENVIRONMENT_NAME }}
+        version_label: "birds-classifier-api-${{ steps.format-time.outputs.replaced }}"
+        region: eu-central-1
+        deployment_package: deploy.zip
+          
+          
+          
+          
+          
+        
+        
+        
