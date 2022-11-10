@@ -79,9 +79,6 @@ jobs:
           deployment_package: ${{ env.DEPLOY_PACKAGE_NAME }}.zip
           
         
-      - name: Deploy new ElasticBeanstalk App Version
-        run: aws elasticbeanstalk update-environment --environment-name ${{ env.EB_ENVIRONMENT_NAME }} --version-label "ver-${{ github.sha }}"
-        
       - name: Print Success for CD
         run: echo "CD Part Success"
           
