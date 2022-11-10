@@ -32,4 +32,4 @@ class RequestFromUser_crud:
         await self.db.execute(query=query)
         return HTTPException(status_code=200, detail="Success")
 
-#crud = RequestFromCruds()
+#crud = RequestFromUserCrud()

@@ -1,4 +1,3 @@
-import aioredis
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from app.database import db

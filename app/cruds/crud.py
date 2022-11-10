@@ -6,7 +6,7 @@ from app.models.models import users
 import secrets
 
 
-class Cruds:
+class UserCrud:
     def __init__(self, db: databases.Database):
         self.db = db
 
@@ -56,4 +56,4 @@ class Cruds:
         #return changed_user
         return schemas.User(id=changed_user.id,email=changed_user.email,password=changed_user.password,name=changed_user.name,creation_date=changed_user.creation_date)
 
-#crud = Cruds()
+#crud = UserCrud()
