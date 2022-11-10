@@ -47,6 +47,24 @@ jobs:
         echo "SECRET=${{ secrets.SECRET }}" >> .env
         echo "REDIS_URL=${{ secrets.REDIS_URL }}" >> .env
         cat .env
+        export ALGORITHMS=${{ secrets.ALGORITHMS }}
+        export API_AUDIENCE=${{ secrets.API_AUDIENCE }}
+        export APPHOST=${{ secrets.APPHOST }}
+        export APPPORT=${{ secrets.APPPORT }}
+        export CLIENT_ID=${{ secrets.CLIENT_ID }}
+        export CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}
+        export CONNECTION=${{ secrets.CONNECTION }}
+        export DOMAIN=${{ secrets.DOMAIN }}
+        export ISSUER=${{ secrets.ISSUER }}
+        export MY_ALGORITHMS=${{ secrets.MY_ALGORITHMS }}
+        export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+        export POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
+        export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+        export POSTGRES_TEST_DB=${{ secrets.POSTGRES_TEST_DB }}
+        export POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
+        export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+        export SECRET=${{ secrets.SECRET }}
+        export REDIS_URL=${{ secrets.REDIS_URL }}
     -
       name: Generate Deployment Package
       run: zip -r deploy.zip *
