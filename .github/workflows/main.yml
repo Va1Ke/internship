@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Git clone my repo
+    - name: Git clone my repos
       uses: actions/checkout@v1
     
     - name: Build the Docker image
