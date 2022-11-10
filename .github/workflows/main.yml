@@ -72,6 +72,7 @@ jobs:
           aws_access_key: ${{ secrets.MY_AWS_ACCESS_KEY }}
           aws_secret_key: ${{ secrets.MY_AWS_SECRET_KEY }}
           application_name: ${{ env.Myfastapi2 }}
+          applicationName: ${{ env.Myfastapi2 }}
           environment_name: ${{ env.EB_ENVIRONMENT_NAME }}
           version_label: "ver-${{ github.sha }}"
           region: ${{ env.AWS_REGION_NAME }}
