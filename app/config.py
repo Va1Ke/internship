@@ -15,7 +15,9 @@ class Settings:
     #DATABASE_URL = "postgresql://admin:admin@localhost:5432/postgresdb"
     POSTGRES_TEST_DB: str = os.getenv("POSTGRES_TEST_DB")
     TEST_DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_TEST_DB}"
-    REDIS_URL = f"redis://cache:6379/"
+    #TEST_DATABASE_URL = "postgresql://admin:admin@localhost:5432/postgresdbtest"
+
+    REDIS_URL: str = os.getenv("REDIS_URL")
     DOMAIN: str = os.getenv("DOMAIN")
     API_AUDIENCE: str = os.getenv("API_AUDIENCE")
     SECRET: str = os.getenv("SECRET")

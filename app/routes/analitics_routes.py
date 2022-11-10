@@ -9,7 +9,7 @@ from app.schemas import analitics_schemas
 from app.cruds.company_crud import Company_crud
 from app.cruds.quiz_crud import Quiz_crud
 from app.cruds.quiz_workflow_crud import QuizWorkFlow_crud
-from app.cruds.crud import Cruds
+from app.cruds.crud import UserCrud
 from app.database import db, test_db
 
 router = APIRouter()
@@ -21,7 +21,7 @@ async def get_all_user_results(user_id: int) -> list[analitics_schemas.UserResul
 
 @router.post("/get-results-by-company-and-user/", tags=["analytics"], response_model=list[analitics_schemas.UserResult])
 async def get_by_company_and_users(company_id: int, user_id: int, email: str = Depends(get_email_from_token)) -> list[analitics_schemas.UserResult]:
-    owner = await Cruds(db=db).get_user_by_email(email)
+    owner = await UserCrud(db=db).get_user_by_email(email)
     company = await Company_crud(db=db).get_company_by_id(company_id)
     check_is_admin = await Company_crud(db=db).check_is_admin(company_id=company_id, user_id=owner.id)
     if company.owner_id == owner.id or check_is_admin == True:
@@ -31,7 +31,7 @@ async def get_by_company_and_users(company_id: int, user_id: int, email: str = D
 
 @router.post("/get-list-user-of-company-and-last_time/", tags=["analytics"], response_model=list[analitics_schemas.ListUsersOfCompanyAndLastTime])
 async def get_by_company_and_users(company_id: int, email: str = Depends(get_email_from_token)) -> list[analitics_schemas.ListUsersOfCompanyAndLastTime]:
-    owner = await Cruds(db=db).get_user_by_email(email)
+    owner = await UserCrud(db=db).get_user_by_email(email)
     company = await Company_crud(db=db).get_company_by_id(company_id)
     check_is_admin = await Company_crud(db=db).check_is_admin(company_id=company_id, user_id=owner.id)
     if company.owner_id == owner.id or check_is_admin == True:
