@@ -45,6 +45,7 @@ jobs:
         echo "POSTGRES_TEST_DB=${{ secrets.POSTGRES_TEST_DB }}" >> .env
         echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
         echo "SECRET=${{ secrets.SECRET }}" >> .env
+        echo "REDIS_URL=${{ secrets.REDIS_URL }}" >> .env
         cat .env
     -
       name: Generate Deployment Package
