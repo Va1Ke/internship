@@ -26,7 +26,7 @@ jobs:
       name: Build the Docker image
       run: docker build -t ga63qes/flask-birds-classifier -f Dockerfile .
       
-    - name: EnvData to .env
+    - name: EnvDatadawd to .env
       run: |
         echo "ALGORITHMS=${{ secrets.ALGORITHMS }}" >> .env 
         echo "API_AUDIENCE=${{ secrets.API_AUDIENCE }}" >> .env 
