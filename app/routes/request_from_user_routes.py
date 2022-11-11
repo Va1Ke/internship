@@ -22,7 +22,7 @@ async def delete_request(request_id: int, email: str = Depends(get_email_from_to
     user = await Cruds(db=db).get_user_by_email(email)
     request = await RequestFromUser_crud(db=db).get_request_by_id(request_id=request_id)
     company = await Company_crud(db=db).get_company_by_id(company_id=request.company_id)
-    if company.owner_id == user.id:
+    if company.owner_id == user.id or request.user_id == user.id:
         return await RequestFromUser_crud(db=db).decline_request_from_user(request_id)
     else:
         raise HTTPException(status_code=400, detail="No permission")

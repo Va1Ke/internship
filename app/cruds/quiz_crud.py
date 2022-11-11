@@ -25,12 +25,12 @@ class Quiz_crud:
             name=quiz.name,
             description=quiz.description,
 
-        ).returning(companies.c.company_id))
+        ).returning(quizzes.c.company_id))
         company_id = await self.db.execute(query=query)
         return quiz_schemas.QuizReturn(**quiz.dict(), company_id=company_id)
 
     async def delete_quiz(self, quiz_id: int) -> HTTPException:
-        await QuizQuestions_crud(db=db).delete_question_for_Quiz_crud(quiz_id)
+        await QuizQuestions_crud(db=self.db).delete_question_for_Quiz_crud(quiz_id)
 
         query = quizzes.delete().where(quizzes.c.id == quiz_id)
         await self.db.execute(query=query)
