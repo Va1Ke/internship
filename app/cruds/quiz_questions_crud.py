@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import and_
 from app.cruds.quiz_questions_answers_crud import QuizQuestionAnswer
 from app.schemas import quiz_questions_schemas
-from app.models.models import quiz_questions
+from app.models.models import quiz_questions, quiz_workflows
 import databases
 
 class QuizQuestions_crud:
@@ -26,7 +26,11 @@ class QuizQuestions_crud:
         list = await self.db.fetch_all(query=query)
         for question in list:
             quest = quiz_questions_schemas.QuizQuestionReturn(**question)
-            await QuizQuestionAnswer(db=db).delete_answer_for_question_for_crud(question_id=quest.id)
+            await QuizQuestionAnswer(db=self.db).delete_answer_for_question_for_crud(question_id=quest.id)
+
+        query = quiz_workflows.delete().where(quiz_workflows.c.quiz_id == quiz_id)
+        await self.db.fetch_all(query=query)
+
 
         query = quiz_questions.delete().where(quiz_questions.c.quiz_id == quiz_id)
         await self.db.execute(query=query)
@@ -35,7 +39,7 @@ class QuizQuestions_crud:
     async def delete_question(self, quiz_id: int, question_id: int) -> HTTPException:
         query = quiz_questions.select().where(and_(quiz_questions.c.quiz_id == quiz_id, quiz_questions.c.id == question_id))
         question = await self.db.fetch_one(query=query)
-        await QuizQuestionAnswer(db=db).delete_answer_for_question_for_crud(question_id=question.id)
+        await QuizQuestionAnswer(db=self.db).delete_answer_for_question_for_crud(question_id=question.id)
 
         query = quiz_questions.delete().where(quiz_questions.c.quiz_id == quiz_id)
         await self.db.execute(query=query)

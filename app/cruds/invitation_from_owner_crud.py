@@ -30,7 +30,7 @@ class InvitationFromOwner_crud:
         return [invitation_from_owner_schemas.InvitationReturnFromCreation(**invitation) for invitation in list_invitation]
 
     async def accept_invitation(self, invitation_id: int, company_id: int, user_id: int):
-        db_company = users_of_companys.insert().values(company_id=company_id, user_id=user_id)
+        db_company = users_of_companys.insert().values(company_id=company_id, user_id=user_id, is_admin=False)
         record_id = await self.db.execute(db_company)
         await self.decline_invitation(invitation_id)
         return invitation_from_owner_schemas.UserCompanyReturn(id=record_id, company_id=company_id, user_id=user_id)
